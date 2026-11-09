@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "keyboard-shortcuts-patterns": {
+      "source": "swiggityswerve/ux-toolkit",
+      "sourceType": "github",
+      "skillPath": "skills/keyboard-shortcuts-patterns/SKILL.md",
+      "computedHash": "aa4dd333d67caa08ce52479697a6c13c6ce75f7f4de2e820b20d239ad0caf6a4"
+    },
     "nextjs-app-router-patterns": {
       "source": "wshobson/agents",
       "sourceType": "github",

@@ -14,13 +14,10 @@
 • Componentes: `src/components/ui/Skeleton.tsx`, `src/app/loading.tsx`, `src/app/ver/[type]/[id]/loading.tsx`, `src/app/error.tsx` y `src/app/not-found.tsx`.
 
 
-  ### 4. Modo Teatro y Mejoras del Reproductor
+  ### 4. Modo Teatro y Mejoras del Reproductor — [COMPLETADO]
 
-  • Estado actual: Reproductor embebido estándar 16:9 con cambio de servidor.
-  • Falta:
-      • Botón "Modo Cine / Teatro": expande el reproductor al 100% del ancho de pantalla oscureciendo el fondo.
-      • Botón "Copiar enlace directo" al capítulo actual (/ver/anime/16498?s=1&e=5).
-      • Atajos de teclado: tecla F (pantalla completa), teclas N/P (siguiente/anterior capítulo).
+• Estado: Implementado con Modo Cine / Teatro envolvente al 100% de pantalla con fondo oscurecido y desenfoque, botón para copiar enlaces directos con parámetros de temporada y capítulo al portapapeles, atajos de teclado globales (F para pantalla completa, T para modo cine, N para siguiente episodio, P para episodio anterior y ESC para salir) y modal informativo de atajos.
+• Componentes: `src/components/player/SafePlayer.tsx`.
 
 
   ### 5. SEO Dinámico y Configuración de Despliegue

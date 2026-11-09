@@ -344,3 +344,45 @@ Adelante, cuando termines cada modulo dame un nombre para crear la rama Feature/
 ### 3. Resultado de Verificación
 - Comando: `npm run build`
 - Resultado: **Exit Code 0** (Compilación limpia con inclusión de `loading`, `error` y `not-found`).
+
+
+---
+
+## Entrada 07: Módulo 4 — Modo Cine / Teatro, Atajos de Teclado y Enlace Directo de Reproducción
+
+### 1. Prompt de Entrada
+```text
+Adelante, recuerda buscar skills si es necesario [Módulo 4: Modo Teatro y Mejoras del Reproductor del archivo Modulos.md]
+```
+
+---
+
+### 2. Archivos Creados y Modificados
+
+#### Skills Descubiertas e Instaladas
+- **`.agents/skills/keyboard-shortcuts-patterns/`**:
+  - *Qué hace*: Provee patrones de diseño para escuchadores globales de eventos de teclado, exclusión de elementos editables (`input`, `textarea`) y modales de ayuda de atajos.
+  - *Por qué*: Garantiza que las teclas rápidas no interfieran cuando el usuario escribe en la barra de búsqueda o interactúa con formularios.
+
+#### Componentes del Reproductor Mejorados
+- **`src/components/player/SafePlayer.tsx`**:
+  - *Qué hace*:
+    1. **Modo Teatro / Cine**: Botón interactivo que expande el reproductor al 100% de la ventana (`fixed inset-0 z-[100]`) oscureciendo el fondo con `backdrop-blur` y centrado cinematográfico.
+    2. **Compartir / Copiar Enlace Directo**: Botón con `navigator.clipboard.writeText` que genera el enlace completo con parámetros de temporada y capítulo (`?s=X&e=Y`) con feedback visual verde de confirmación por 2.5 segundos.
+    3. **Atajos de Teclado**: Soporte global para:
+       - `T`: Alternar Modo Teatro / Cine.
+       - `F`: Pantalla Completa nativa mediante la API Fullscreen.
+       - `N`: Saltar al siguiente capítulo (series y anime).
+       - `P`: Retroceder al capítulo anterior.
+       - `ESC`: Salir del modo cine.
+    4. **Modal Informativo de Atajos**: Ventana emergente con leyenda de teclas de acceso rápido.
+  - *Por qué*: Eleva la experiencia de streaming a un estándar nativo moderno y facilita compartir capítulos específicos entre usuarios.
+- **`Modulos.md`**:
+  - *Qué hace*: Marca el Módulo 4 como [COMPLETADO].
+  - *Por qué*: Sincroniza el estado de las tareas del proyecto.
+
+---
+
+### 3. Resultado de Verificación
+- Comando: `npm run build`
+- Resultado: **Exit Code 0** (Compilación limpia, verificación de tipos e interactividad sin errores).
