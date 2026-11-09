@@ -10,10 +10,12 @@
 /build
 /dist
 /coverage
+/.vercel
 
 # Variables de entorno y secretos locales
 .env
 .env*.local
+.env.example
 
 # Logs de debug y ejecución
 npm-debug.log*
@@ -37,3 +39,4 @@ Thumbs.db
 .compound-engineering/
 .agents/
 .gemini/
+skills-lock.json
