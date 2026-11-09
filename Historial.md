@@ -261,3 +261,44 @@ Del archivo Modulos.md, vamos a empezar con el modulo 1. Recuerda buscar las ski
 ### 3. Resultado de Verificación
 - Comando: `npm run build`
 - Resultado: **Exit Code 0** (Compilación limpia, todas las rutas estáticas y dinámicas verificadas).
+
+
+---
+
+## Entrada 05: Módulo 2 — Búsqueda Global en Vivo con Menú Flotante Autocompletado
+
+### 1. Prompt de Entrada
+```text
+Adelante [Continuar con el Módulo 2: Búsqueda Global en Vivo (Live Search Dropdown) del archivo Modulos.md]
+```
+
+---
+
+### 2. Archivos Creados y Modificados
+
+#### Skills Descubiertas e Instaladas
+- **`.agents/skills/search/`**:
+  - *Qué hace*: Provee directrices de diseño UX para experiencias de búsqueda interactiva (debounce de 200-300 ms, agrupación por tipo de medio, enlaces a cero resultados, manejo de teclas Escape/Enter y soporte responsivo móvil).
+  - *Por qué*: Estandariza la experiencia de usuario y accesibilidad en el sistema de autocompletado en vivo.
+
+#### Endpoints y Lógica de Búsqueda
+- **`src/app/api/search/route.ts`**:
+  - *Qué hace*: Route Handler que recibe el término de búsqueda `?q=...` y ejecuta consultas en paralelo (`Promise.all`) a `getCachedCatalog` para cine, series y anime. Retorna un objeto agrupado con los mejores resultados y cabecera de borde `Cache-Control: public, s-maxage=600`.
+  - *Por qué*: Evita llamadas múltiples desordenadas desde el cliente y consolida las 3 categorías en una sola respuesta JSON optimizada.
+
+#### Componentes de Interfaz
+- **`src/components/layout/LiveSearch.tsx`**:
+  - *Qué hace*: Barra de búsqueda con temporizador de retardo (debounce de 300 ms) y menú desplegable flotante con `backdrop-blur`. Muestra miniaturas de carátulas, años de estreno, calificaciones de estrellas, división por secciones (🎬 Películas, 📺 Series, ✨ Anime) y enlaces directos al reproductor `/ver/[type]/[id]`. Incluye detector de clic fuera y tecla `Escape` para cierre automático.
+  - *Por qué*: Permite al usuario encontrar y reproducir cualquier contenido en menos de 2 clics sin pasar por páginas intermedias.
+- **`src/components/layout/Header.tsx`**:
+  - *Qué hace*: Reemplaza el formulario de búsqueda estático anterior por el nuevo componente `<LiveSearch />` tanto en la barra superior de escritorio como dentro del menú móvil deslizable.
+  - *Por qué*: Mantiene una experiencia de búsqueda consistente y accesible en todos los anchos de pantalla.
+- **`Modulos.md`**:
+  - *Qué hace*: Marca el Módulo 2 como [COMPLETADO].
+  - *Por qué*: Sincroniza el estado de las tareas del proyecto.
+
+---
+
+### 3. Resultado de Verificación
+- Comando: `npm run build`
+- Resultado: **Exit Code 0** (Compilación limpia, nuevo endpoint `ƒ /api/search` verificado con tamaño optimizado de 127 B).

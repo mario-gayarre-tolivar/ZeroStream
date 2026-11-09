@@ -2,17 +2,15 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
-import { Film, Menu, Search, Tv, Sparkles, Bookmark, X } from "lucide-react";
+import { useState } from "react";
+import { Film, Menu, Tv, Sparkles, Bookmark, X } from "lucide-react";
 import { useCatalogPrefetch } from "@/hooks/useCatalogPrefetch";
+import { LiveSearch } from "./LiveSearch";
 import { MediaType } from "@/types";
 
 export function Header() {
   const pathname = usePathname();
-  const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
   const { prefetchCatalog } = useCatalogPrefetch();
 
   const navLinks: { href: string; label: string; icon: any; mediaType?: MediaType }[] = [
@@ -22,23 +20,6 @@ export function Header() {
     { href: "/anime", label: "Anime", icon: Sparkles, mediaType: "anime" },
     { href: "/mi-lista", label: "Mi Lista", icon: Bookmark },
   ];
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
-
-    // Redirige al catálogo correspondiente o películas por defecto
-    const targetSection = pathname.includes("/anime")
-      ? "/anime"
-      : pathname.includes("/series")
-      ? "/series"
-      : "/peliculas";
-
-    startTransition(() => {
-      router.push(`${targetSection}?q=${encodeURIComponent(searchQuery.trim())}`);
-      setMobileMenuOpen(false);
-    });
-  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/90 backdrop-blur-md">
@@ -85,32 +66,11 @@ export function Header() {
           </nav>
         </div>
 
-        {/* Search Bar & Mobile Trigger */}
+        {/* Live Search Bar (Desktop) & Mobile Trigger */}
         <div className="flex items-center gap-3">
-          <form
-            onSubmit={handleSearchSubmit}
-            className="relative hidden sm:block w-64 md:w-80"
-            role="search"
-          >
-            <input
-              type="search"
-              placeholder="Buscar título o género..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-lg border border-border bg-surface px-9 py-1.5 text-sm text-slate-100 placeholder-slate-500 transition-colors focus:border-accent focus:bg-surface-hover focus:outline-none"
-            />
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-500" />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 top-2.5 text-slate-500 hover:text-slate-300"
-                aria-label="Limpiar búsqueda"
-              >
-                <X className="h-3.5 w-3.5" />
-              </button>
-            )}
-          </form>
+          <div className="hidden sm:block">
+            <LiveSearch />
+          </div>
 
           {/* Mobile Menu Button */}
           <button
@@ -128,16 +88,9 @@ export function Header() {
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
         <div className="border-b border-border bg-surface px-4 pb-5 pt-3 md:hidden">
-          <form onSubmit={handleSearchSubmit} className="mb-4 relative">
-            <input
-              type="search"
-              placeholder="Buscar título o género..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-lg border border-border bg-background px-9 py-2 text-sm text-slate-100 placeholder-slate-500 focus:border-accent focus:outline-none"
-            />
-            <Search className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
-          </form>
+          <div className="mb-4">
+            <LiveSearch onSelect={() => setMobileMenuOpen(false)} isMobile />
+          </div>
 
           <nav className="flex flex-col gap-1">
             {navLinks.map((link) => {

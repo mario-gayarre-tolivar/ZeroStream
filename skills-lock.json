@@ -13,6 +13,12 @@
       "skillPath": "plugins/developer-kit-typescript/skills/nextjs-data-fetching/SKILL.md",
       "computedHash": "868240fba1ebd9f9aba3fa9761327aa587f693aeffd88246bce34e1bccfe1958"
     },
+    "search": {
+      "source": "aladicf/better-web-ui",
+      "sourceType": "github",
+      "skillPath": "skills/search/SKILL.md",
+      "computedHash": "b0cc57f4e2044e86c791d8119ea00b135d314591390786c9da2940a83f810d6a"
+    },
     "upstash-ratelimit-js": {
       "source": "upstash/skills",
       "sourceType": "github",
