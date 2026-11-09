@@ -20,10 +20,7 @@
 • Componentes: `src/components/player/SafePlayer.tsx`.
 
 
-  ### 5. SEO Dinámico y Configuración de Despliegue
+  ### 5. SEO Dinámico y Configuración de Despliegue — [COMPLETADO]
 
-  • Estado actual: Título estático en todas las rutas.
-  • Falta:
-      • generateMetadata() en /ver/[type]/[id]: OpenGraph dinámico para que al compartir el enlace por
-      WhatsApp/Discord/Telegram se muestre el póster, sinopsis y título real.
-      • .env.example: plantilla con la variable NEXT_PUBLIC_TMDB_API_KEY.
+• Estado: Implementado con metadatos dinámicos `generateMetadata()` en `/ver/[type]/[id]` para tarjetas enriquecidas de OpenGraph y Twitter en redes sociales, plantilla de variables `.env.example`, generación automática de `sitemap.xml` y `robots.txt` para rastreadores de búsqueda.
+• Componentes: `src/app/layout.tsx`, `src/app/ver/[type]/[id]/page.tsx`, `.env.example`, `src/app/robots.ts` y `src/app/sitemap.ts`.

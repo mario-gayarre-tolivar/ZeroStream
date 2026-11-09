@@ -3,10 +3,33 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://zerostream.vercel.app";
+
 export const metadata: Metadata = {
-  title: "ZeroStream — Streaming Libre de Anime, Películas y Series",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "ZeroStream — Streaming Libre de Anime, Películas y Series",
+    template: "%s | ZeroStream",
+  },
   description:
     "Plataforma unificada para explorar y reproducir anime, películas y series bajo arquitectura Zero-Storage y costo cero.",
+  openGraph: {
+    title: "ZeroStream — Streaming Libre",
+    description:
+      "Plataforma unificada para explorar y reproducir anime, películas y series en alta definición.",
+    siteName: "ZeroStream",
+    locale: "es_ES",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ZeroStream — Streaming Libre",
+    description: "Anime, películas y series en alta definición.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

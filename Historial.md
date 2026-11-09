@@ -386,3 +386,50 @@ Adelante, recuerda buscar skills si es necesario [Módulo 4: Modo Teatro y Mejor
 ### 3. Resultado de Verificación
 - Comando: `npm run build`
 - Resultado: **Exit Code 0** (Compilación limpia, verificación de tipos e interactividad sin errores).
+
+
+---
+
+## Entrada 08: Módulo 5 — SEO Dinámico, OpenGraph, Sitemap, Robots y Despliegue
+
+### 1. Prompt de Entrada
+```text
+Adelante [Módulo 5: SEO Dinámico y Configuración de Despliegue del archivo Modulos.md]
+```
+
+---
+
+### 2. Archivos Creados y Modificados
+
+#### Skills Descubiertas e Instaladas
+- **`.agents/skills/nextjs-seo/`**:
+  - *Qué hace*: Provee directrices de implementación para la API de Metadatos de Next.js App Router, canonicals, `metadataBase`, sitemaps dinámicos y políticas de rastreadores web.
+  - *Por qué*: Garantiza que las etiquetas OpenGraph y Twitter Cards se resuelvan correctamente con URLs absolutas para previsualización en WhatsApp, Discord y Telegram.
+
+#### Metadatos y Optimización para Redes Sociales
+- **`src/app/layout.tsx`**:
+  - *Qué hace*: Configura `metadataBase` usando `NEXT_PUBLIC_SITE_URL`, plantilla dinámica de título (`%s | ZeroStream`), descripción general y directivas globales de robots e indexación.
+  - *Por qué*: Estandariza la presencia en motores de búsqueda de toda la plataforma.
+- **`src/app/ver/[type]/[id]/page.tsx`**:
+  - *Qué hace*: Implementa `generateMetadata()` dinámico que extrae el título, sinopsis, imagen de carátula/backdrop y capítulo actual (`T${season}:E${episode}`). Emite tarjetas OpenGraph (`video.other`) y Twitter Card (`summary_large_image`).
+  - *Por qué*: Cuando los usuarios comparten un enlace directo a un episodio o película, las aplicaciones de mensajería muestran una vista previa rica con póster y sinopsis en tiempo real.
+
+#### Archivos de Despliegue y Rastreo
+- **`.env.example`**:
+  - *Qué hace*: Plantilla documentada con las variables de entorno necesarias (`NEXT_PUBLIC_TMDB_API_KEY`, `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_TMDB_IMAGE_BASE`).
+  - *Por qué*: Facilita el despliegue inmediato en Vercel, Netlify o Cloudflare Pages indicando dónde colocar credenciales opcionales.
+- **`src/app/robots.ts`**:
+  - *Qué hace*: Genera dinámicamente `robots.txt` permitiendo el rastreo de todo el sitio y protegiendo los endpoints internos `/api/`.
+  - *Por qué*: Estandariza el comportamiento para Googlebot y otros rastreadores.
+- **`src/app/sitemap.ts`**:
+  - *Qué hace*: Genera dinámicamente el mapa de sitio `sitemap.xml` con las rutas maestras (`/`, `/peliculas`, `/series`, `/anime`, `/mi-lista`) y prioridades de indexación.
+  - *Por qué*: Mejora la descubribilidad del catálogo en buscadores.
+- **`Modulos.md`**:
+  - *Qué hace*: Marca el Módulo 5 como [COMPLETADO].
+  - *Por qué*: Concluye la totalidad de los 5 módulos planificados.
+
+---
+
+### 3. Resultado de Verificación
+- Comando: `npm run build`
+- Resultado: **Exit Code 0** (Compilación limpia, rutas `robots.txt` y `sitemap.xml` generadas exitosamente; los 5 módulos del proyecto completados al 100%).

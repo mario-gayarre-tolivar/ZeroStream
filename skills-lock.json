@@ -19,6 +19,12 @@
       "skillPath": "plugins/developer-kit-typescript/skills/nextjs-data-fetching/SKILL.md",
       "computedHash": "868240fba1ebd9f9aba3fa9761327aa587f693aeffd88246bce34e1bccfe1958"
     },
+    "nextjs-seo": {
+      "source": "laguagu/claude-code-nextjs-skills",
+      "sourceType": "github",
+      "skillPath": "skills/nextjs-seo/SKILL.md",
+      "computedHash": "f0179122dd450fb7d2fe1c8332a8d33300edc7ad648b4c2fa8bc763de023ed3a"
+    },
     "search": {
       "source": "aladicf/better-web-ui",
       "sourceType": "github",
