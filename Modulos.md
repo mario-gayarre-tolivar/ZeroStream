@@ -8,12 +8,10 @@
 • Estado: Implementado con debounce de 300 ms, búsqueda concurrente en paralelo en Películas, Series y Anime vía `/api/search` y menú flotante accesible con miniaturas, años, estrellas de valoración y navegación directa.
 • Componentes: `LiveSearch.tsx` integrado en `Header.tsx` (escritorio y menú móvil) y endpoint `src/app/api/search/route.ts`.
 
-  ### 3. Estados de Carga y Límites de Error (App Router)
+  ### 3. Estados de Carga y Límites de Error (App Router) — [COMPLETADO]
 
-  • Estado actual: El navegador espera en blanco mientras se resuelve el SSR.
-  • Falta:
-      • src/app/loading.tsx: Esqueletos de carga (skeletons) con pulso gris mientras llega la data.
-      • src/app/error.tsx: Pantalla de error con botón "Reintentar" si la conexión falla.
+• Estado: Implementado con esqueletos de carga animados (Skeletons con pulso) para transiciones de portada, catálogo y reproductor, límite de error global interactivo con reintento y página 404 personalizada.
+• Componentes: `src/components/ui/Skeleton.tsx`, `src/app/loading.tsx`, `src/app/ver/[type]/[id]/loading.tsx`, `src/app/error.tsx` y `src/app/not-found.tsx`.
 
 
   ### 4. Modo Teatro y Mejoras del Reproductor

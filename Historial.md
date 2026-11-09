@@ -302,3 +302,45 @@ Adelante [Continuar con el Módulo 2: Búsqueda Global en Vivo (Live Search Drop
 ### 3. Resultado de Verificación
 - Comando: `npm run build`
 - Resultado: **Exit Code 0** (Compilación limpia, nuevo endpoint `ƒ /api/search` verificado con tamaño optimizado de 127 B).
+
+
+---
+
+## Entrada 06: Módulo 3 — Estados de Carga (Skeletons) y Límites de Error (App Router)
+
+### 1. Prompt de Entrada
+```text
+Adelante, cuando termines cada modulo dame un nombre para crear la rama Feature/nombre_feature y el mensaje del commit [Módulo 3: Estados de Carga y Límites de Error]
+```
+
+---
+
+### 2. Archivos Creados y Modificados
+
+#### Componentes de Estado de Carga
+- **`src/components/ui/Skeleton.tsx`**:
+  - *Qué hace*: Componente base con animación de pulso (`animate-pulse`) y estilos de superficie oscura para componer esqueletos de carga con cero desfase visual (*layout shift*).
+  - *Por qué*: Estandariza los marcadores de posición durante la carga de contenido asíncrono.
+- **`src/app/loading.tsx`**:
+  - *Qué hace*: Esqueleto de carga global para el App Router que replica la estructura de la portada (Hero Banner y cuadrícula de tarjetas de 6 columnas).
+  - *Por qué*: Proporciona retroalimentación visual inmediata durante el renderizado del lado del servidor (SSR) evitando pantallas en blanco.
+- **`src/app/ver/[type]/[id]/loading.tsx`**:
+  - *Qué hace*: Esqueleto especializado para la pantalla de reproducción, simulando el reproductor 16:9 con spinner de conexión, la lista de episodios y el bloque de detalles técnicos.
+  - *Por qué*: Mejora la percepción de velocidad al entrar a ver cualquier película, serie o anime.
+
+#### Manejo de Errores y Páginas Especiales
+- **`src/app/error.tsx`**:
+  - *Qué hace*: Error Boundary del cliente que captura fallos no controlados en tiempo de ejecución, muestra un mensaje explicativo y ofrece botones de acción ("Reintentar conexión" mediante `reset()` y "Volver al Inicio").
+  - *Por qué*: Evita la caída total de la aplicación en caso de fallo de red hacia servicios de streaming externos.
+- **`src/app/not-found.tsx`**:
+  - *Qué hace*: Pantalla 404 personalizada con diseño nativo oscuro, badge de error y enlaces directos a las categorías principales.
+  - *Por qué*: Ofrece una ruta de recuperación si el usuario introduce un enlace inválido o retirado.
+- **`Modulos.md`**:
+  - *Qué hace*: Marca el Módulo 3 como [COMPLETADO].
+  - *Por qué*: Mantiene el estado actualizado de la planificación.
+
+---
+
+### 3. Resultado de Verificación
+- Comando: `npm run build`
+- Resultado: **Exit Code 0** (Compilación limpia con inclusión de `loading`, `error` y `not-found`).
