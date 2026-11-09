@@ -1,7 +1,7 @@
 import { getCachedCatalog } from "@/services/catalog-cache";
-import { MediaGrid } from "@/components/media/MediaGrid";
 import { FilterBar } from "@/components/media/FilterBar";
-import { Tv } from "lucide-react";
+import { LoadMoreCatalog } from "@/components/media/LoadMoreCatalog";
+import { Tv, AlertCircle } from "lucide-react";
 
 export const revalidate = 3600;
 
@@ -9,6 +9,7 @@ interface SeriesPageProps {
   searchParams: Promise<{
     q?: string;
     genre?: string;
+    page?: string;
   }>;
 }
 
@@ -25,8 +26,9 @@ export default async function SeriesPage({ searchParams }: SeriesPageProps) {
   const params = await searchParams;
   const query = params.q;
   const genre = params.genre;
+  const currentPage = parseInt(params.page || "1", 10) || 1;
 
-  const { data: series } = await getCachedCatalog("tv", 1, query, genre);
+  const { data: series } = await getCachedCatalog("tv", currentPage, query, genre);
 
   return (
     <div className="flex flex-col gap-6">
@@ -38,16 +40,28 @@ export default async function SeriesPage({ searchParams }: SeriesPageProps) {
           </h1>
         </div>
         <p className="text-sm text-slate-400">
-          Temporadas completas y episodios organizados con reproductores externos protegidos.
+          Temporadas completas y episodios organizados con carga dinámica y paginación rápida.
         </p>
       </div>
 
       <FilterBar genres={SERIES_GENRES} currentGenre={genre} />
 
-      <MediaGrid
-        items={series}
-        emptyMessage="No se encontraron series para los filtros seleccionados."
-      />
+      {series.length === 0 ? (
+        <div className="flex min-h-[220px] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface/30 p-8 text-center">
+          <AlertCircle className="mb-3 h-8 w-8 text-slate-500" />
+          <p className="max-w-md text-sm text-slate-400">
+            No se encontraron series para los filtros seleccionados.
+          </p>
+        </div>
+      ) : (
+        <LoadMoreCatalog
+          initialItems={series}
+          type="tv"
+          currentPage={currentPage}
+          genre={genre}
+          query={query}
+        />
+      )}
     </div>
   );
 }
