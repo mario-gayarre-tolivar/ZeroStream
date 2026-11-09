@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { getTrendingMedia } from "@/services/tmdb";
-import { getTrendingAnime } from "@/services/anilist";
+import { getCachedCatalog } from "@/services/catalog-cache";
 import { HeroBanner } from "@/components/home/HeroBanner";
 import { ContinueWatching } from "@/components/home/ContinueWatching";
 import { MediaGrid } from "@/components/media/MediaGrid";
@@ -9,12 +8,16 @@ import { Film, Tv, Sparkles, ChevronRight } from "lucide-react";
 export const revalidate = 3600; // Cache 1 hora
 
 export default async function HomePage() {
-  // Parallel data fetching para evitar waterfalls (React Best Practices)
-  const [movies, series, anime] = await Promise.all([
-    getTrendingMedia("movie", 1),
-    getTrendingMedia("tv", 1),
-    getTrendingAnime(1),
+  // Parallel data fetching con caché integrado (React Best Practices + Next.js Data Fetching)
+  const [moviesRes, seriesRes, animeRes] = await Promise.all([
+    getCachedCatalog("movie", 1),
+    getCachedCatalog("tv", 1),
+    getCachedCatalog("anime", 1),
   ]);
+
+  const movies = moviesRes.data;
+  const series = seriesRes.data;
+  const anime = animeRes.data;
 
   const featured = movies[0] || anime[0] || series[0];
 

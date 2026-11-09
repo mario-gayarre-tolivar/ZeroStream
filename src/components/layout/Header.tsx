@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Film, Menu, Search, Tv, Sparkles, Bookmark, X } from "lucide-react";
+import { useCatalogPrefetch } from "@/hooks/useCatalogPrefetch";
+import { MediaType } from "@/types";
 
 export function Header() {
   const pathname = usePathname();
@@ -11,12 +13,13 @@ export function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const { prefetchCatalog } = useCatalogPrefetch();
 
-  const navLinks = [
-    { href: "/", label: "Inicio" },
-    { href: "/peliculas", label: "Películas", icon: Film },
-    { href: "/series", label: "Series", icon: Tv },
-    { href: "/anime", label: "Anime", icon: Sparkles },
+  const navLinks: { href: string; label: string; icon: any; mediaType?: MediaType }[] = [
+    { href: "/", label: "Inicio", icon: Film },
+    { href: "/peliculas", label: "Películas", icon: Film, mediaType: "movie" },
+    { href: "/series", label: "Series", icon: Tv, mediaType: "tv" },
+    { href: "/anime", label: "Anime", icon: Sparkles, mediaType: "anime" },
     { href: "/mi-lista", label: "Mi Lista", icon: Bookmark },
   ];
 
@@ -66,6 +69,9 @@ export function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
+                  onMouseEnter={() => {
+                    if (link.mediaType) prefetchCatalog(link.mediaType);
+                  }}
                   className={`rounded-md px-3.5 py-1.5 text-sm font-medium transition-colors ${
                     isActive
                       ? "bg-surface-active text-white"

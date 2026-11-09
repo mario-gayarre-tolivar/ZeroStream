@@ -1,4 +1,4 @@
-import { getTrendingMedia } from "@/services/tmdb";
+import { getCachedCatalog } from "@/services/catalog-cache";
 import { MediaGrid } from "@/components/media/MediaGrid";
 import { FilterBar } from "@/components/media/FilterBar";
 import { Tv } from "lucide-react";
@@ -26,7 +26,7 @@ export default async function SeriesPage({ searchParams }: SeriesPageProps) {
   const query = params.q;
   const genre = params.genre;
 
-  const series = await getTrendingMedia("tv", 1, query, genre);
+  const { data: series } = await getCachedCatalog("tv", 1, query, genre);
 
   return (
     <div className="flex flex-col gap-6">

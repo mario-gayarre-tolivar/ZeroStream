@@ -156,3 +156,61 @@ Edita el .gitignore para que se suba al repositorio solo lo que se debe subir
 
 ### 3. Resultado de Verificación
 - Verificación con `git status`: Los 105 paquetes compilados en `.next/` y los entornos locales ya no aparecen como archivos no rastreados (*untracked*), dejando únicamente el árbol de código fuente y archivos de configuración esenciales.
+
+
+---
+
+## Entrada 03: Capa Backend Serverless, Caching en 3 Niveles y Prefetching Automático
+
+### 1. Prompt de Entrada
+```text
+Actúa como un arquitecto backend senior especializado en arquitecturas serverless, optimización de APIs y caching de alto rendimiento en Next.js.
+
+### Objetivo
+Diseñar e implementar la capa de servicios backend para la carga automática, instantánea y de máxima eficiencia de los catálogos (Anime, Películas y Series) desde APIs y fuentes de terceros, manteniendo la premisa de costo cero y cero almacenamiento propio (*Zero-Storage*).
+[Aprobación del plan de ejecución: "Adelante tt"]
+```
+
+---
+
+### 2. Archivos Creados y Modificados
+
+#### Skills de Optimización Instaladas
+- **`.agents/skills/nextjs-data-fetching/`**:
+  - *Qué hace*: Provee directrices de arquitectura de datos para Next.js App Router (ISR, SWR, paralelismo con `Promise.all` y límites de revalidación).
+  - *Por qué*: Guía la eliminación de waterfalls y garantiza que la carga de catálogos no degrade el rendimiento en dispositivos de bajos recursos.
+- **`.agents/skills/upstash-ratelimit-js/`**:
+  - *Qué hace*: Guía técnica de algoritmos de limitación de tasa (sliding window / token bucket).
+  - *Por qué*: Establece el estándar para proteger las llamadas hacia APIs externas de terceros y evitar baneos de IP o errores HTTP 429.
+
+#### Servicios de Caché y Resiliencia
+- **`src/services/catalog-cache.ts`**:
+  - *Qué hace*: Implementa una caché en memoria volátil en servidor con TTL de 1 hora, `AbortController` con timeout de 3.5 segundos y política *Stale-If-Error*.
+  - *Por qué*: Si una API externa sufre latencia alta o caídas, entrega instantáneamente la versión previa en caché sin interrumpir la experiencia del usuario.
+
+#### Endpoints y API Handlers
+- **`src/app/api/catalog/[type]/route.ts`**:
+  - *Qué hace*: Route Handler universal de Next.js (`/api/catalog/movie`, `/api/catalog/tv`, `/api/catalog/anime`) con soporte de paginación, filtros de género y búsqueda. Configura cabeceras de borde `Cache-Control: public, s-maxage=3600, stale-while-revalidate=86400`.
+  - *Por qué*: Centraliza el consumo de las APIs de terceros y delega el almacenamiento en caché al Edge CDN de Vercel/Cloudflare, reduciendo las peticiones externas casi a cero.
+
+#### Hooks y Optimización Cliente
+- **`src/hooks/useCatalogPrefetch.ts`**:
+  - *Qué hace*: Hook que ejecuta prefetching pasivo durante el tiempo inactivo del navegador (`idle`) y al interactuar con la navegación.
+  - *Por qué*: Permite que las tres pestañas principales (Películas, Series, Anime) carguen instantáneamente en el cliente (< 50 ms) al hacer clic.
+- **`src/components/layout/Header.tsx`**:
+  - *Qué hace*: Vincula `onMouseEnter` a los enlaces del menú superior para disparar el prefetch del catálogo correspondiente antes de que el usuario haga clic.
+  - *Por qué*: Anticipa la intención del usuario para lograr una navegación sin transiciones de espera.
+
+#### Páginas Actualizadas con Caché Integrado
+- **`src/app/page.tsx`**:
+  - *Qué hace*: Conecta la llamada paralela `Promise.all` a `getCachedCatalog` para películas, series y anime.
+  - *Por qué*: Acelera el renderizado del home eliminando bloqueos de red hacia servicios externos.
+- **`src/app/peliculas/page.tsx`**, **`src/app/series/page.tsx`**, **`src/app/anime/page.tsx`**:
+  - *Qué hace*: Conectan sus llamadas de catálogo al servicio centralizado `getCachedCatalog`.
+  - *Por qué*: Aseguran que cualquier filtro o recarga aproveche la caché en memoria y la protección por timeout.
+
+---
+
+### 3. Resultado de Verificación
+- Comando: `npm run build`
+- Resultado: **Exit Code 0** (Generación estática y dinámica exitosa; nuevo endpoint `ƒ /api/catalog/[type]` optimizado a 123 B de First Load JS).

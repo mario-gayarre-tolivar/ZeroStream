@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "nextjs-data-fetching": {
+      "source": "giuseppe-trisciuoglio/developer-kit",
+      "sourceType": "github",
+      "skillPath": "plugins/developer-kit-typescript/skills/nextjs-data-fetching/SKILL.md",
+      "computedHash": "868240fba1ebd9f9aba3fa9761327aa587f693aeffd88246bce34e1bccfe1958"
+    },
+    "upstash-ratelimit-js": {
+      "source": "upstash/skills",
+      "sourceType": "github",
+      "skillPath": "skills/upstash-ratelimit-js/SKILL.md",
+      "computedHash": "91f5df89a4d6085068fe6297f2387eacbd38e49f14fae7718606cc2c0d3b9673"
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import { getTrendingMedia } from "@/services/tmdb";
+import { getCachedCatalog } from "@/services/catalog-cache";
 import { MediaGrid } from "@/components/media/MediaGrid";
 import { FilterBar } from "@/components/media/FilterBar";
 import { Film } from "lucide-react";
@@ -26,7 +26,7 @@ export default async function MoviesPage({ searchParams }: MoviesPageProps) {
   const query = params.q;
   const genre = params.genre;
 
-  const movies = await getTrendingMedia("movie", 1, query, genre);
+  const { data: movies } = await getCachedCatalog("movie", 1, query, genre);
 
   return (
     <div className="flex flex-col gap-6">
