@@ -3,7 +3,10 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://zerostream.vercel.app";
+const siteUrl =
+  process.env.SITE_URL ||
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  "https://zerostream.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

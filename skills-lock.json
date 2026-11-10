@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "graphify": {
+      "source": "graphify-labs/graphify",
+      "sourceType": "github",
+      "skillPath": "graphify/SKILL.md",
+      "computedHash": "60e20979626cbedd5e7a427ad4d94137c83fd4da31e688458877f18f84f3aee9"
+    },
     "keyboard-shortcuts-patterns": {
       "source": "swiggityswerve/ux-toolkit",
       "sourceType": "github",

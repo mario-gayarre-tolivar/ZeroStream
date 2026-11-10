@@ -471,3 +471,136 @@ Revisa el .gitignore y limpia el repositorio de cosas que ya no se necesitan com
 ### 3. Resultado de Verificación
 - Comando: `npm run build`
 - Resultado: **Exit Code 0** (Compilación limpia, árbol de archivos optimizado, repositorio listo para producción).
+
+
+---
+
+## Entrada 10: Compatibilidad con Variables de Entorno Seguras de Servidor (Sin `NEXT_PUBLIC_`)
+
+### 1. Prompt de Entrada
+```text
+Al anadirlo a vercel me dijeron que los nombres no deben tener el prefijo NEXT_PUBLIC_
+```
+
+---
+
+### 2. Archivos Modificados
+
+- **`src/services/tmdb.ts`**:
+  - *Qué hace*: Lee `process.env.TMDB_API_KEY || process.env.NEXT_PUBLIC_TMDB_API_KEY` y `process.env.TMDB_IMAGE_BASE || process.env.NEXT_PUBLIC_TMDB_IMAGE_BASE`.
+  - *Por qué*: En Next.js, el prefijo `NEXT_PUBLIC_` expone las variables en el código JavaScript del navegador. Dado que las peticiones a TMDB se resuelven exclusivamente en el servidor (Server Components y Route Handlers), usar `TMDB_API_KEY` mantiene la clave privada y segura, evitando las advertencias de seguridad de Vercel mientras mantiene compatibilidad hacia atrás.
+- **`src/app/layout.tsx`**, **`src/app/robots.ts`**, **`src/app/sitemap.ts`**:
+  - *Qué hace*: Resuelven la URL base del sitio desde `process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL`.
+  - *Por qué*: Permite definir la URL pública en Vercel como `SITE_URL` sin prefijo de cliente.
+- **`.env.example`**:
+  - *Qué hace*: Actualiza la plantilla con `TMDB_API_KEY` y `SITE_URL` sin el prefijo `NEXT_PUBLIC_`.
+  - *Por qué*: Proporciona la guía exacta para la configuración de variables en el panel de Vercel.
+
+---
+
+### 3. Resultado de Verificación
+- Comando: `npm run build`
+- Resultado: **Exit Code 0** (Compilación limpia, soporte dual sin advertencias).
+
+---
+
+## Entrada 11: Búsqueda e Instalación de la Skill `graphify` (Grafo de Conocimiento AST para Reducción de Tokens)
+
+### 1. Prompt de Entrada
+```text
+/find-skills busca la skill graphify o de nombre similar que hace que la lectura de todo el codigo sea mas barata
+si
+```
+
+---
+
+### 2. Archivos Creados e Instalados
+
+#### Nueva Skill en `.agents/skills/`
+- **`.agents/skills/graphify/`** (instalado desde `graphify-labs/graphify@graphify`):
+  - *Qué hace*: Proporciona la especificación, instrucciones de uso y hooks para `graphifyy` (herramienta que analiza el árbol sintáctico AST de código, documentación y tipos con Tree-sitter, generando grafos de conocimiento locales en formatos HTML, JSON para GraphRAG y `GRAPH_REPORT.md`).
+  - *Por qué*: Convierte el código fuente del proyecto en un grafo navegable con consultas dirigidas (`query`, `path`, `explain`). Permite al agente o desarrollador consultar dependencias y flujos arquitectónicos consumiendo una fracción mínima de tokens (hasta 71.5x menos coste de lectura de contexto) sin necesidad de cargar carpetas completas en la ventana de contexto.
+
+#### Archivos de Configuración y Seguimiento
+- **`skills-lock.json`**:
+  - *Qué hace*: Registra el hash de versión y origen del skill `graphify-labs/graphify@graphify`.
+  - *Por qué*: Mantiene el control determinista de skills instaladas en el entorno local (ignorado en git por `.gitignore`).
+- **`.env.example`**:
+  - *Qué hace*: Restaurado con las variables estándar `TMDB_API_KEY`, `SITE_URL` y `TMDB_IMAGE_BASE` sin exponer credenciales de cliente.
+  - *Por qué*: Plantilla de referencia para variables en despliegues.
+
+---
+
+### 3. Resultado de Verificación
+- Instalación ejecutada: `npx skills add graphify-labs/graphify@graphify -y` -> Exit Code 0.
+- Árbol de skill verificado en: `.agents/skills/graphify/SKILL.md` (807 líneas de comandos y flujos documentados).
+
+---
+
+## Entrada 12: Generación del Grafo de Conocimiento y Pipeline de Arquitectura (`/graphify`)
+
+### 1. Prompt de Entrada
+```text
+/graphify
+```
+
+---
+
+### 2. Archivos Creados y Modificados
+
+#### Artefactos de Grafo en `graphify-out/`
+- **`graphify-out/graph.json`**:
+  - *Qué hace*: Base de datos local en formato JSON GraphRAG que modela los 227 nodos (componentes, servicios, tipos, rutas y conceptos de arquitectura) y 452 relaciones/aristas del proyecto con métricas de confianza y procedencia.
+  - *Por qué*: Permite consultas dirigidas instantáneas sin necesidad de cargar carpetas completas en la ventana de contexto de los agentes.
+- **`graphify-out/graph.html`**:
+  - *Qué hace*: Visualizador web interactivo autocontenido con física de fuerzas (force-directed graph) y segmentación por clusters/comunidades.
+  - *Por qué*: Inspección visual directa y sin servidores de la topología del proyecto en cualquier navegador.
+- **`graphify-out/GRAPH_REPORT.md`**:
+  - *Qué hace*: Reporte arquitectónico en lenguaje natural con inventario de nodos maestros (*God Nodes* como `lucide-react`, `next`, `getCachedCatalog()`, `MediaItem`), hipergrafos de flujos (arquitectura Zero-Storage, caché multicapa y modo cine) y análisis de ciclos de importación (0 ciclos detectados).
+  - *Por qué*: Auditoría transparente de la estructura de código y dependencias.
+- **`graphify-out/manifest.json`**:
+  - *Qué hace*: Registro de hashes y firmas de archivos analizados.
+  - *Por qué*: Habilita la actualización incremental rápida (`graphify --update`) reanalizando únicamente los archivos modificados.
+
+---
+
+### 3. Resultado de Verificación
+- Extracción de código (AST con Tree-sitter): 43 archivos de código -> 188 nodos, 418 aristas.
+- Extracción semántica: 2 documentos (`README.md`, `Historial.md`) -> 38 nodos, 46 aristas, 3 hipergrafos (100% de cobertura de líneas).
+- Grafo final compilado: **227 nodos**, **452 aristas**, **12 comunidades temáticas**, **0 ciclos de importación**.
+- Reporte y visualizador HTML generados en `graphify-out/graph.html`.
+
+---
+
+## Entrada 13: Creación de Guía Técnica de Uso del Grafo e Ignorado en Git (`GUIA_GRAFO.md`)
+
+### 1. Prompt de Entrada
+```text
+Hace falta subirlo a github? O es mejor meterlo en el gitignore?
+Ya lo he hecho yo, tu genera un .md de como puedo usar el grafo (que un modelo lo lea, actualizarlo, etc)
+```
+
+---
+
+### 2. Archivos Creados y Modificados
+
+- **`.gitignore`**:
+  - *Qué hace*: Añade `graphify-out/` a la lista de directorios ignorados.
+  - *Por qué*: Mantiene el repositorio limpio de artefactos autogenerados, evita diffs masivos en commits cada vez que cambia el código fuente y protege rutas locales absolutas del entorno de desarrollo.
+- **`GUIA_GRAFO.md`**:
+  - *Qué hace*: Documenta exhaustivamente el flujo de trabajo con el grafo de conocimiento:
+    1. Fundamento de ahorro de tokens (AST Tree-sitter + GraphRAG sin vector DBs).
+    2. Modos de consumo por modelos de IA (skill automática, prompts dirigidos y servidor MCP stdio).
+    3. Catálogo de comandos de consulta CLI (`query`, `path`, `explain`, control de budget en tokens).
+    4. Mantenimiento y actualización rápida (`graphify --update`, `--watch` en milisegundos).
+    5. Guía de inspección visual en `graphify-out/graph.html`.
+  - *Por qué*: Centraliza las instrucciones prácticas para que el desarrollador o futuros agentes sepan interactuar con el grafo eficientemente.
+
+---
+
+### 3. Resultado de Verificación
+- Archivo verificado: `GUIA_GRAFO.md` creado en la raíz del workspace.
+- `.gitignore`: `graphify-out/` activo, repositorio sin archivos basura en `git status`.
+
+
+

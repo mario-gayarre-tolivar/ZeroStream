@@ -1,8 +1,11 @@
 import { MediaDetail, MediaItem, MediaType } from "@/types";
 
 const TMDB_API_URL = "https://api.themoviedb.org/3";
-const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p";
-const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY || "";
+const TMDB_IMAGE_BASE =
+  process.env.TMDB_IMAGE_BASE ||
+  process.env.NEXT_PUBLIC_TMDB_IMAGE_BASE ||
+  "https://image.tmdb.org/t/p";
+const API_KEY = process.env.TMDB_API_KEY || process.env.NEXT_PUBLIC_TMDB_API_KEY || "";
 
 // Dataset de respaldo para Películas (Cine real)
 const FALLBACK_MOVIES: MediaItem[] = [

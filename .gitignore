@@ -15,7 +15,7 @@
 # Variables de entorno y secretos locales
 .env
 .env*.local
-.env.example
+
 
 # Logs de debug y ejecución
 npm-debug.log*
@@ -40,3 +40,5 @@ Thumbs.db
 .agents/
 .gemini/
 skills-lock.json
+
+graphify-out/
