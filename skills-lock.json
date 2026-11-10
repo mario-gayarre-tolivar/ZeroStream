@@ -31,6 +31,12 @@
       "skillPath": "skills/nextjs-seo/SKILL.md",
       "computedHash": "f0179122dd450fb7d2fe1c8332a8d33300edc7ad648b4c2fa8bc763de023ed3a"
     },
+    "react-testing": {
+      "source": "affaan-m/ecc",
+      "sourceType": "github",
+      "skillPath": "skills/react-testing/SKILL.md",
+      "computedHash": "59bd15f26f018d6629557108f936ab691af887508ae71b9d339855e49e337012"
+    },
     "search": {
       "source": "aladicf/better-web-ui",
       "sourceType": "github",
@@ -42,6 +48,18 @@
       "sourceType": "github",
       "skillPath": "skills/upstash-ratelimit-js/SKILL.md",
       "computedHash": "91f5df89a4d6085068fe6297f2387eacbd38e49f14fae7718606cc2c0d3b9673"
+    },
+    "vitest": {
+      "source": "antfu/skills",
+      "sourceType": "github",
+      "skillPath": "skills/vitest/SKILL.md",
+      "computedHash": "b26b7f8d10e860e944e0334c003207771707c4906514cb96c971faae13fba875"
+    },
+    "writing-unit-tests": {
+      "source": "riekelt/principal-engineer",
+      "sourceType": "github",
+      "skillPath": "plugins/principal-engineer/skills/writing-unit-tests/SKILL.md",
+      "computedHash": "3b87b422eaea2e84fb15de7e2b7d9bf5abebd4a60a2049ae285d22f69da254ce"
     }
   }
 }

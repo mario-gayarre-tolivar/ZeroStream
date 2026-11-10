@@ -602,5 +602,124 @@ Ya lo he hecho yo, tu genera un .md de como puedo usar el grafo (que un modelo l
 - Archivo verificado: `GUIA_GRAFO.md` creado en la raíz del workspace.
 - `.gitignore`: `graphify-out/` activo, repositorio sin archivos basura en `git status`.
 
+---
+
+## Entrada 14: Generación de Matriz de Validación y Funcionalidades (`CHECKLIST_PRUEBAS.md`)
+
+### 1. Prompt de Entrada
+```text
+Ahora vas a hacer una tarea final, enumera todas las funciones que mi pagina web deberia cumplir y como se podria comprobar si dicha funcion funciona o no
+```
+
+---
+
+### 2. Archivos Creados
+
+- **`CHECKLIST_PRUEBAS.md`**:
+  - *Qué hace*: Documento técnico integral que desglosa todas las capacidades de la plataforma agrupadas en 5 áreas de prueba:
+    1. Catálogos y Navegación (Home, Continuar Viendo, filtros de género/año/orden, paginación dual, Mi Lista).
+    2. Buscador en Vivo (debounce 300ms, consulta paralela TMDB + AniList, menú flotante, cierre con `Escape`).
+    3. Reproductor Seguro y Controles (`<iframe>` sandboxed sin popups, selector de servidores de respaldo, modo teatro `T`, pantalla completa `F`, navegación de episodios `N`/`P`, copiar enlace).
+    4. Resiliencia y Fallbacks (soporte offline/sin API key, loading skeletons anti-CLS, error boundary y 404 personalizado).
+    5. SEO y Variables de Servidor (OpenGraph dinámico por título, `robots.txt`, `sitemap.xml`, protección de `TMDB_API_KEY` en backend).
+  - *Por qué*: Proporciona al desarrollador y evaluadores una guía de control de calidad (QA) paso a paso con las pruebas exactas para verificar cada función.
+
+---
+
+### 3. Resultado de Verificación
+- Archivo verificado: `CHECKLIST_PRUEBAS.md` generado en la raíz del proyecto.
+- Suite de pruebas manuales y métodos de comprobación 100% cubiertos para la arquitectura Zero-Storage.
+
+---
+
+## Entrada 15: Instalación del Ecosistema de Skills para Tests Unitarios (`vitest`, `react-testing`, `writing-unit-tests`)
+
+### 1. Prompt de Entrada
+```text
+/find-skills busca las skills mas aptas para la creacion de tests unitarios
+Ahora voy a generar tests para las funciones que has escrito en el CKECKLIST_PRUEBAS.md asi que instala las que mejor vengan para la generacion de los tests
+```
+
+---
+
+### 2. Archivos Creados e Instalados
+
+#### Nuevas Skills en `.agents/skills/`
+- **`.agents/skills/vitest/`** (instalado desde `antfu/skills@vitest` - 47.4K installs):
+  - *Qué hace*: Proporciona guías, configuración de entorno y patrones de testing para **Vitest** (runner rápido compatible nativamente con TypeScript, React 19 y ESM).
+  - *Por qué*: Motor base para ejecutar la suite de pruebas unitarias de la plataforma.
+- **`.agents/skills/react-testing/`** (instalado desde `affaan-m/ecc@react-testing` - 7.5K installs):
+  - *Qué hace*: Pautas para pruebas unitarias y de integración de componentes React con **React Testing Library** (renderizado en jsdom, testing de hooks, simulación de eventos `user-event` y aserciones de accesibilidad).
+  - *Por qué*: Permite probar de forma robusta componentes interactivos como `SafePlayer`, `EpisodeSelector`, `LiveSearch` y `MediaCard`.
+- **`.agents/skills/writing-unit-tests/`** (instalado desde `riekelt/principal-engineer@writing-unit-tests` - 23.3K installs):
+  - *Qué hace*: Principios de testing unitario senior: prueba de casos límite (boundary conditions), mocks desacoplados de APIs externas y aserciones libres de falsos positivos.
+  - *Por qué*: Facilita probar servicios críticos de lógica pura como `catalog-cache` (TTL en memoria), mapeo de servidores embed y utilidades de ordenamiento/filtrado.
+
+#### Archivos de Seguimiento
+- **`skills-lock.json`**:
+  - *Qué hace*: Actualizado con las firmas deterministas de las 3 skills instaladas.
+  - *Por qué*: Integridad del entorno local de herramientas de agentes.
+
+---
+
+### 3. Resultado de Verificación
+- Comandos ejecutados:
+  - `npx skills add antfu/skills@vitest -y` -> Exit Code 0.
+  - `npx skills add affaan-m/ecc@react-testing -y` -> Exit Code 0.
+  - `npx skills add riekelt/principal-engineer@writing-unit-tests -y` -> Exit Code 0.
+- Árbol de skills verificado en `.agents/skills/`.
+
+---
+
+## Entrada 16: Configuración de Vitest e Implementación de la Suite de Tests Unitarios
+
+### 1. Prompt de Entrada
+```text
+Adelante
+```
+
+---
+
+### 2. Archivos Creados y Modificados
+
+#### Configuración de Testing
+- **`package.json`**:
+  - *Qué hace*: Añade dependencias de desarrollo (`vitest`, `@vitejs/plugin-react`, `jsdom`, `@testing-library/react`, `@testing-library/dom`, `@testing-library/jest-dom`) y scripts de ejecución `"test": "vitest run"` y `"test:watch": "vitest"`.
+  - *Por qué*: Habilita la ejecución automatizada de pruebas unitarias en Next.js 15 y React 19.
+- **`vitest.config.mjs`**:
+  - *Qué hace*: Configura Vitest con el plugin de React, entorno `jsdom`, alias `@/` apuntando a `./src` y archivo de configuración inicial.
+  - *Por qué*: Garantiza resolución idéntica a Next.js sin discrepancias de rutas.
+- **`vitest.setup.ts`**:
+  - *Qué hace*: Importa `@testing-library/jest-dom/vitest` para disponer de matchers de aserción DOM (`toBeInTheDocument`, `toHaveAttribute`, etc.).
+  - *Por qué*: Soporte nativo para pruebas de componentes y accesibilidad.
+
+#### Suite de Tests Unitarios (`src/__tests__/`)
+- **`src/__tests__/services/embeds.test.ts`**:
+  - *Qué hace*: Valida la generación determinista de los 4 servidores de streaming (VidSrc, Embed.su, SuperEmbed, VidSrc.cc), parámetros URL para películas y series (temporada/capítulo), y configuración para anime.
+- **`src/__tests__/services/history.test.ts`**:
+  - *Qué hace*: Valida la persistencia en `localStorage`, deduplicación de entradas recientes en historial y alternancia de favoritos (`toggleFavorite`).
+- **`src/__tests__/services/catalog-cache.test.ts`**:
+  - *Qué hace*: Valida la política de caché en memoria del servidor (`getCachedCatalog`), comprobando que la primera llamada golpea upstream y las subsiguientes se sirven en memoria en < 5ms sin peticiones repetidas.
+- **`src/__tests__/services/tmdb.test.ts`**:
+  - *Qué hace*: Valida la resiliencia offline y la activación automática de catálogos y fichas de respaldo cuando no se suministra clave API o la red externa falla.
+- **`src/__tests__/components/SafePlayer.test.tsx`**:
+  - *Qué hace*: Valida que el `<iframe>` cuente con sandbox estricto sin popups, que los botones alternen la fuente del reproductor, y la activación de Modo Cine y copiado de enlace.
+- **`src/__tests__/components/EpisodeSelector.test.tsx`**:
+  - *Qué hace*: Valida la selección de temporadas, renderizado de títulos y disparo de callbacks al hacer clic en episodios.
+- **`src/__tests__/components/MediaCard.test.tsx`**:
+  - *Qué hace*: Valida el renderizado accesible de tarjetas, rating, tipo de medio y enlace canónico de reproducción.
+- **`src/__tests__/components/LiveSearch.test.tsx`**:
+  - *Qué hace*: Valida el debounce de 300 ms (evita peticiones con menos de 2 caracteres), renderizado reactivo del desplegable y cierre inmediato al presionar la tecla `Escape`.
+
+---
+
+### 3. Resultado de Verificación
+- Comando de test: `npm test` (`vitest run`).
+- Resultado: **8/8 archivos de test pasados (100%)**, **25 tests ejecutados exitosamente**, **0 fallos**.
+- Comando de compilación: `npm run build` -> Exit Code 0 (11 rutas verificadas).
+
+
+
+
 
 
