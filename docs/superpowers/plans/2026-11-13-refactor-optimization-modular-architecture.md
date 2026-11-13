@@ -41,7 +41,7 @@
 - [x] **Paso 1:** Escribir tests unitarios para `src/services/anilist.ts` que validen consultas normales, paginación, filtros de género y manejo de respuestas fallidas de la API GraphQL.
 - [x] **Paso 2:** Escribir tests para el endpoint de catálogo `/api/catalog/[type]` validando códigos HTTP (200, 400 por tipo inválido) y cabeceras de respuesta.
 - [x] **Paso 3:** Ejecutar `npm test` y verificar que los tests pasen con mocks controlados.
-- [ ] **Paso 4:** Commit de la suite de pruebas base.
+- [x] **Paso 4:** Commit de la suite de pruebas base.
 
 ### Task 1.2: Optimización de Memoria y Resiliencia en Caché (`src/services/catalog-cache.ts`)
 **Files:**
@@ -49,10 +49,10 @@
 - Modify: `src/services/catalog-cache.ts`
 - Test: `src/__tests__/services/catalog-cache.test.ts`
 
-- [ ] **Paso 1:** Escribir tests en `catalog-cache.test.ts` comprobando el desalojo automático de entradas antiguas cuando se excede la capacidad máxima de memoria (LRU) y expiración por TTL.
-- [ ] **Paso 2:** Implementar una estructura ligera `BoundedMemoryCache` en `src/services/lru-cache.ts` con límite máximo de entradas (ej. 150 claves) y desalojo automático O(1) para erradicar fugas de memoria.
-- [ ] **Paso 3:** Refactorizar `catalog-cache.ts` para usar `BoundedMemoryCache` y corregir el bug del bloque catch donde se reintentaba la misma petición fallida sin timeout.
-- [ ] **Paso 4:** Ejecutar `npm test` y `npm run build` para confirmar estabilidad.
+- [x] **Paso 1:** Escribir tests en `catalog-cache.test.ts` comprobando el desalojo automático de entradas antiguas cuando se excede la capacidad máxima de memoria (LRU) y expiración por TTL.
+- [x] **Paso 2:** Implementar una estructura ligera `BoundedMemoryCache` en `src/services/lru-cache.ts` con límite máximo de entradas (ej. 150 claves) y desalojo automático O(1) para erradicar fugas de memoria.
+- [x] **Paso 3:** Refactorizar `catalog-cache.ts` para usar `BoundedMemoryCache` y corregir el bug del bloque catch donde se reintentaba la misma petición fallida sin timeout.
+- [x] **Paso 4:** Ejecutar `npm test` y `npm run build` para confirmar estabilidad.
 - [ ] **Paso 5:** Commit del cambio.
 
 ### Task 1.3: Auditoría, Reparación y Tipado de Servidores de Streaming (`src/services/embeds.ts`)
