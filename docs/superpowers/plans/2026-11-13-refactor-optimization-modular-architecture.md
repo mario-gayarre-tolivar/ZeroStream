@@ -67,7 +67,7 @@
   - Solucionar el problema de anime: añadir soporte para mapeo o proveedores directos de anime que admitan título/temporada cuando el ID no coincida con TMDB.
   - Añadir metadatos de servidor (estado de salud, soporte de subtítulos en español y sandbox recomendado).
 - [x] **Paso 3:** Ejecutar `npm test` y verificar que todas las opciones de servidores devuelven URLs bien formadas.
-- [ ] **Paso 4:** Commit del cambio.
+- [x] **Paso 4:** Commit del cambio.
 
 ### Task 1.4: Contratos de Datos y Tipado Seguro (`src/services/tmdb.ts` y `src/services/anilist.ts`)
 **Files:**
@@ -77,9 +77,9 @@
 - Test: `src/__tests__/services/tmdb.test.ts`
 - Test: `src/__tests__/services/anilist.test.ts`
 
-- [ ] **Paso 1:** Integrar validadores de esquema seguros (`zod` o funciones de guardia de tipos puras) para sanear respuestas externas antes de transformarlas a `MediaItem`.
-- [ ] **Paso 2:** Eliminar transformaciones duplicadas y asignaciones de memoria redundantes en bucles de mapeo.
-- [ ] **Paso 3:** Comprobar con `npm test` y `npm run build`.
+- [x] **Paso 1:** Integrar validadores de esquema seguros (`zod` o funciones de guardia de tipos puras) para sanear respuestas externas antes de transformarlas a `MediaItem`.
+- [x] **Paso 2:** Eliminar transformaciones duplicadas y asignaciones de memoria redundantes en bucles de mapeo.
+- [x] **Paso 3:** Comprobar con `npm test` y `npm run build`.
 - [ ] **Paso 4:** Commit del cambio.
 
 ---
@@ -98,7 +98,7 @@
   - Escala tipográfica refinada con ritmo vertical claro y espaciado generoso.
 - [ ] **Paso 2:** Rediseñar `Header.tsx` y `Footer.tsx` eliminando bordes innecesarios, aplicando navegación minimalista con enlaces claros y accesibilidad de teclado (`focus-visible`).
 - [ ] **Paso 3:** Ejecutar `npm test` y `npm run build`.
-- [ ] **Paso 4:** Commit del cambio.
+- [x] **Paso 4:** Commit del cambio.
 
 ### Task 2.2: Desacoplamiento y Composición del Reproductor (`src/components/player/`)
 **Files:**
@@ -113,7 +113,7 @@
   - Desacoplar el estado de advertencia de sandbox y el iframe en bloques independientes.
 - [ ] **Paso 2:** Optimizar `EpisodeSelector.tsx`: memorización de lista de episodios, renderizado eficiente con paginación por temporadas sin re-renderizar todo el árbol.
 - [ ] **Paso 3:** Ejecutar tests unitarios existentes y añadir pruebas de cambio de servidor sin recarga completa.
-- [ ] **Paso 4:** Commit del cambio.
+- [x] **Paso 4:** Commit del cambio.
 
 ### Task 2.3: Refactorización de Catálogo, Tarjetas y Búsqueda (`src/components/media/` y `layout/`)
 **Files:**
@@ -127,7 +127,7 @@
 - [ ] **Paso 1:** Rediseñar `MediaCard.tsx`: imagen con aspecto cinematográfico, tipografía limpia, sin efectos de hover estridentes o etiquetas repetitivas.
 - [ ] **Paso 2:** Optimizar `LiveSearch.tsx`: simplificar el hook de debounce, limpiar gestión de foco con teclado (flechas arriba/abajo y Escape) y destruir suscripciones al desmontar para no retener memoria.
 - [ ] **Paso 3:** Comprobar con `npm test` (tests de debounce y Escape) y `npm run build`.
-- [ ] **Paso 4:** Commit del cambio.
+- [x] **Paso 4:** Commit del cambio.
 
 ---
 

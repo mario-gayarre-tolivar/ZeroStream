@@ -1,4 +1,5 @@
-import { MediaDetail, MediaItem, MediaType } from "@/types";
+import { MediaDetail, MediaItem } from "@/types";
+import { TmdbListResponseSchema } from "./schemas";
 
 const TMDB_API_URL = "https://api.themoviedb.org/3";
 const TMDB_IMAGE_BASE =
@@ -200,24 +201,27 @@ export async function getTrendingMedia(
 
       const res = await fetch(endpoint, { next: { revalidate: 3600 } });
       if (res.ok) {
-        const data = await res.json();
-        const results = data.results || [];
-        return results.map((item: any) => ({
-          id: item.id,
-          title: item.title || item.name,
-          originalTitle: item.original_title || item.original_name,
-          type,
-          overview: item.overview || "Sin descripción disponible.",
-          posterPath: item.poster_path
-            ? `${TMDB_IMAGE_BASE}/w500${item.poster_path}`
-            : "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600",
-          backdropPath: item.backdrop_path
-            ? `${TMDB_IMAGE_BASE}/w1280${item.backdrop_path}`
-            : undefined,
-          voteAverage: Number((item.vote_average || 7.5).toFixed(1)),
-          releaseDate: item.release_date || item.first_air_date || "",
-          genres: [],
-        }));
+        const json = await res.json();
+        const parsed = TmdbListResponseSchema.safeParse(json);
+
+        if (parsed.success) {
+          return parsed.data.results.map((item) => ({
+            id: item.id,
+            title: item.title || item.name || "Sin título",
+            originalTitle: item.original_title || item.original_name,
+            type,
+            overview: item.overview || "Sin descripción disponible.",
+            posterPath: item.poster_path
+              ? `${TMDB_IMAGE_BASE}/w500${item.poster_path}`
+              : "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600",
+            backdropPath: item.backdrop_path
+              ? `${TMDB_IMAGE_BASE}/w1280${item.backdrop_path}`
+              : undefined,
+            voteAverage: Number((item.vote_average || 7.5).toFixed(1)),
+            releaseDate: item.release_date || item.first_air_date || "",
+            genres: [],
+          }));
+        }
       }
     } catch (e) {
       console.error(`Error fetching TMDB ${type}:`, e);
@@ -250,29 +254,34 @@ export async function getMediaDetail(
       if (res.ok) {
         const item = await res.json();
         const trailer = item.videos?.results?.find(
-          (v: any) => v.site === "YouTube" && (v.type === "Trailer" || v.type === "Teaser")
+          (v: { site?: string; type?: string; key?: string }) =>
+            v.site === "YouTube" && (v.type === "Trailer" || v.type === "Teaser")
         );
 
         let seasons = undefined;
-        if (type === "tv" && item.seasons) {
+        if (type === "tv" && Array.isArray(item.seasons)) {
           seasons = item.seasons
-            .filter((s: any) => s.season_number > 0)
-            .map((s: any) => ({
-              seasonNumber: s.season_number,
-              name: s.name || `Temporada ${s.season_number}`,
-              episodeCount: s.episode_count || 10,
-              episodes: Array.from({ length: s.episode_count || 10 }, (_, i) => ({
-                seasonNumber: s.season_number,
-                episodeNumber: i + 1,
-                title: `Episodio ${i + 1}`,
-                overview: `Episodio ${i + 1} de la Temporada ${s.season_number}`,
-              })),
-            }));
+            .filter((s: { season_number?: number }) => (s.season_number ?? 0) > 0)
+            .map((s: { season_number?: number; name?: string; episode_count?: number }) => {
+              const sNum = s.season_number ?? 1;
+              const epCount = s.episode_count || 10;
+              return {
+                seasonNumber: sNum,
+                name: s.name || `Temporada ${sNum}`,
+                episodeCount: epCount,
+                episodes: Array.from({ length: epCount }, (_, i) => ({
+                  seasonNumber: sNum,
+                  episodeNumber: i + 1,
+                  title: `Episodio ${i + 1}`,
+                  overview: `Episodio ${i + 1} de la Temporada ${sNum}`,
+                })),
+              };
+            });
         }
 
         return {
           id: item.id,
-          title: item.title || item.name,
+          title: item.title || item.name || "Sin título",
           originalTitle: item.original_title || item.original_name,
           type,
           overview: item.overview || "Sin descripción disponible.",
@@ -284,7 +293,7 @@ export async function getMediaDetail(
             : undefined,
           voteAverage: Number((item.vote_average || 7.5).toFixed(1)),
           releaseDate: item.release_date || item.first_air_date || "",
-          genres: item.genres?.map((g: any) => g.name) || [],
+          genres: item.genres?.map((g: { name: string }) => g.name) || [],
           duration: item.runtime ? `${item.runtime} min` : undefined,
           tagline: item.tagline,
           trailerYoutubeId: trailer?.key,
@@ -297,7 +306,7 @@ export async function getMediaDetail(
     }
   }
 
-  // Fallback
+  // Fallback seguro
   const list = type === "movie" ? FALLBACK_MOVIES : FALLBACK_SERIES;
   const found = list.find((m) => String(m.id) === String(id)) || list[0];
   let seasons = undefined;

@@ -1,4 +1,5 @@
 import { MediaDetail, MediaItem } from "@/types";
+import { AniListPageResponseSchema } from "./schemas";
 
 const ANILIST_API_URL = "https://graphql.anilist.co";
 
@@ -176,26 +177,26 @@ export async function getTrendingAnime(
       return filterFallback(FALLBACK_ANIME, search, genre);
     }
 
-    const data = await res.json();
-    const mediaList = data?.data?.Page?.media || [];
+    const json = await res.json();
+    const parsed = AniListPageResponseSchema.safeParse(json);
 
-    if (!mediaList.length) {
+    if (!parsed.success || !parsed.data.data.Page.media.length) {
       return filterFallback(FALLBACK_ANIME, search, genre);
     }
 
-    return mediaList.map((m: any) => ({
+    return parsed.data.data.Page.media.map((m) => ({
       id: m.id,
-      title: m.title.english || m.title.romaji || m.title.native,
-      originalTitle: m.title.native || m.title.romaji,
+      title: m.title.english || m.title.romaji || m.title.native || "Anime",
+      originalTitle: m.title.native || m.title.romaji || undefined,
       type: "anime" as const,
-      overview: cleanOverview(m.description),
-      posterPath: m.coverImage.extraLarge || m.coverImage.large,
-      backdropPath: m.bannerImage || m.coverImage.extraLarge,
+      overview: cleanOverview(m.description || undefined),
+      posterPath: m.coverImage.extraLarge || m.coverImage.large || "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=600",
+      backdropPath: m.bannerImage || m.coverImage.extraLarge || undefined,
       voteAverage: m.averageScore ? Number((m.averageScore / 10).toFixed(1)) : 8.0,
       releaseDate: m.seasonYear ? String(m.seasonYear) : "2023",
-      genres: m.genres || ["Anime"],
+      genres: m.genres.length ? m.genres : ["Anime"],
       totalEpisodes: m.episodes || 12,
-      status: m.status,
+      status: m.status || undefined,
     }));
   } catch (error) {
     console.error("AniList fetch error:", error);
