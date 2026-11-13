@@ -107,10 +107,13 @@ describe("<EpisodeSelector /> — Selector de Temporadas y Capítulos", () => {
       />
     );
 
-    const seasonSelect = screen.getByRole("combobox", { name: /seleccionar temporada/i });
-    expect(seasonSelect).toBeInTheDocument();
+    const seasonTrigger = screen.getByRole("button", { name: /seleccionar temporada/i });
+    expect(seasonTrigger).toBeInTheDocument();
 
-    fireEvent.change(seasonSelect, { target: { value: "2" } });
+    fireEvent.click(seasonTrigger);
+    const opt2 = screen.getByRole("option", { name: /temporada 2/i });
+    fireEvent.click(opt2);
+
     expect(handleSelectSeason).toHaveBeenCalledWith(2);
   });
 
@@ -145,7 +148,7 @@ describe("<EpisodeSelector /> — Selector de Temporadas y Capítulos", () => {
     );
 
     // Debe mostrar selector de rango/página
-    expect(screen.getByRole("combobox", { name: /seleccionar rango de episodios/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /seleccionar rango de episodios/i })).toBeInTheDocument();
 
     // En la página 1 (1-100), debe aparecer el botón 1 y el botón 100, pero NO el 713
     expect(screen.getByRole("button", { name: /^1$/ })).toBeInTheDocument();
@@ -184,9 +187,12 @@ describe("<EpisodeSelector /> — Selector de Temporadas y Capítulos", () => {
       />
     );
 
-    const select = screen.getByRole("combobox", { name: /seleccionar rango de episodios/i });
+    const rangeTrigger = screen.getByRole("button", { name: /seleccionar rango de episodios/i });
+    fireEvent.click(rangeTrigger);
+
     // Cambiar a la página 8 (Eps 701 - 800)
-    fireEvent.change(select, { target: { value: "7" } }); // index 7 = page 8 (701-800)
+    const page8Opt = screen.getByRole("option", { name: /página 8/i });
+    fireEvent.click(page8Opt);
 
     // Ahora el botón del episodio 713 debe estar en pantalla en el grid numérico
     const ep713Btn = screen.getByRole("button", { name: /^713$/ });

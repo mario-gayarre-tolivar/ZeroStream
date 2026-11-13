@@ -110,4 +110,26 @@ describe("<SafePlayer /> — Reproductor Sandboxed Seguro", () => {
       expect(screen.getByText("¡Copiado!")).toBeInTheDocument();
     });
   });
+
+  it("debe renderizar el carril de servidores con nombres legibles y badges de calidad", () => {
+    render(
+      <SafePlayer
+        servers={mockServers}
+        mediaType="movie"
+        mediaId={550}
+        title="Fight Club"
+        posterPath="/poster.jpg"
+      />
+    );
+
+    // Verificar que los botones de servidores tienen nombres completos legibles
+    const s1 = screen.getByText("Servidor Principal");
+    expect(s1).toBeInTheDocument();
+    const s2 = screen.getByText("Servidor Secundario");
+    expect(s2).toBeInTheDocument();
+
+    // Badges de calidad
+    expect(screen.getByText("1080p")).toBeInTheDocument();
+    expect(screen.getByText("1080p Multi")).toBeInTheDocument();
+  });
 });

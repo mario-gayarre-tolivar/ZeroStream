@@ -3,6 +3,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { Season } from "@/types";
 import { Layers, Tv } from "lucide-react";
+import { CustomDropdown } from "@/components/ui/CustomDropdown";
 
 interface EpisodeSelectorProps {
   seasons: Season[];
@@ -71,7 +72,7 @@ export function EpisodeSelector({
   if (!seasons || seasons.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-4 sm:p-5 w-full overflow-hidden">
+    <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-4 sm:p-5 w-full">
       {/* Header: Título y Controles Desplegables de Temporada y Rango */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/80 pb-3">
         <div className="flex items-center gap-2">
@@ -84,49 +85,42 @@ export function EpisodeSelector({
         </div>
 
         <div className="flex flex-wrap items-center gap-2 max-w-full">
-          {/* Selector de Temporadas en Desplegable Contenido (Cero Desbordamiento) */}
+          {/* Selector de Temporadas en Desplegable Animado */}
           {seasons.length > 1 && (
-            <div className="flex items-center gap-1.5 bg-surface-active rounded border border-border px-2.5 py-1">
-              <Tv className="h-3.5 w-3.5 text-accent shrink-0" />
-              <select
-                aria-label="Seleccionar temporada"
-                value={currentSeason}
-                onChange={(e) => {
-                  onSelectSeason(Number(e.target.value));
-                  setActivePageIndex(0);
-                }}
-                className="bg-transparent text-xs font-medium text-white outline-none cursor-pointer max-w-[140px] truncate"
-              >
-                {seasons.map((s) => (
-                  <option key={s.seasonNumber} value={s.seasonNumber} className="bg-surface text-white">
-                    {s.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <CustomDropdown
+              label="Temporada"
+              ariaLabel="Seleccionar temporada"
+              icon={<Tv className="h-3.5 w-3.5" />}
+              options={seasons.map((s) => ({
+                value: s.seasonNumber,
+                label: s.name,
+                badge: s.episodes?.length ? `${s.episodes.length} eps` : undefined,
+              }))}
+              selectedValue={currentSeason}
+              onSelect={(val) => {
+                onSelectSeason(Number(val));
+                setActivePageIndex(0);
+              }}
+            />
           )}
 
-          {/* Selector de Rango de Episodios (Bloques de 100) */}
+          {/* Selector de Rango de Episodios (Bloques de 100) en Desplegable Animado */}
           {totalPages > 1 && (
-            <div className="flex items-center gap-1.5 bg-surface-active rounded border border-border px-2.5 py-1">
-              <Layers className="h-3.5 w-3.5 text-accent shrink-0" />
-              <select
-                aria-label="Seleccionar rango de episodios"
-                value={activePageIndex}
-                onChange={(e) => setActivePageIndex(Number(e.target.value))}
-                className="bg-transparent text-xs font-medium text-white outline-none cursor-pointer max-w-[150px] truncate"
-              >
-                {Array.from({ length: totalPages }, (_, idx) => {
-                  const startEp = idx * episodesPerPage + 1;
-                  const endEp = Math.min((idx + 1) * episodesPerPage, episodes.length);
-                  return (
-                    <option key={idx} value={idx} className="bg-surface text-white">
-                      Página {idx + 1} ({startEp}-{endEp})
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
+            <CustomDropdown
+              label="Rango de episodios"
+              ariaLabel="Seleccionar rango de episodios"
+              icon={<Layers className="h-3.5 w-3.5" />}
+              options={Array.from({ length: totalPages }, (_, idx) => {
+                const startEp = idx * episodesPerPage + 1;
+                const endEp = Math.min((idx + 1) * episodesPerPage, episodes.length);
+                return {
+                  value: idx,
+                  label: `Página ${idx + 1} (${startEp}-${endEp})`,
+                };
+              })}
+              selectedValue={activePageIndex}
+              onSelect={(val) => setActivePageIndex(Number(val))}
+            />
           )}
         </div>
       </div>
