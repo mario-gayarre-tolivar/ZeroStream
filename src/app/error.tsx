@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import { AlertTriangle, RotateCcw, Home } from "lucide-react";
+import { AlertCircle, RotateCcw, Home } from "lucide-react";
 
 export default function ErrorBoundary({
   error,
@@ -16,30 +16,30 @@ export default function ErrorBoundary({
   }, [error]);
 
   return (
-    <div className="flex min-h-[480px] w-full flex-col items-center justify-center p-6 text-center animate-fadeIn">
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-400 border border-rose-500/20 shadow-lg">
-        <AlertTriangle className="h-8 w-8" />
+    <div className="flex min-h-[460px] w-full flex-col items-center justify-center p-6 text-center animate-fadeIn">
+      <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-accent/10 text-accent border border-accent/20 shadow-sm">
+        <AlertCircle className="h-7 w-7" />
       </div>
 
-      <h1 className="mt-6 text-2xl font-bold tracking-tight text-white sm:text-3xl">
+      <h1 className="mt-5 text-xl font-bold tracking-tight text-white sm:text-2xl">
         Error al cargar el contenido
       </h1>
 
-      <p className="mt-2 max-w-md text-sm text-slate-400">
-        No se pudo completar la conexión con los servidores de metadatos o streams. Esto puede
-        deberse a intermitencias temporales en las fuentes externas.
+      <p className="mt-2 max-w-md text-xs text-zinc-400">
+        No se pudo completar la conexión con los servidores de metadatos o streams. Esto puede deberse a intermitencias temporales en las fuentes externas.
       </p>
 
       {error?.message && (
-        <div className="mt-4 max-w-lg rounded-lg border border-border bg-surface-active/50 px-3 py-1.5 font-mono text-[11px] text-slate-400">
+        <div className="mt-4 max-w-lg rounded border border-border bg-surface px-3 py-1.5 font-mono text-[11px] text-zinc-400">
           {error.message}
         </div>
       )}
 
-      <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
         <button
+          type="button"
           onClick={() => reset()}
-          className="flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-xs font-semibold text-white shadow-md transition-all hover:bg-accent-hover hover:shadow-accent/25"
+          className="flex items-center gap-2 rounded bg-accent px-4 py-2 text-xs font-semibold text-background transition-colors hover:bg-accent-hover"
         >
           <RotateCcw className="h-4 w-4" />
           Reintentar conexión
@@ -47,10 +47,10 @@ export default function ErrorBoundary({
 
         <Link
           href="/"
-          className="flex items-center gap-2 rounded-xl border border-border bg-surface px-5 py-2.5 text-xs font-semibold text-slate-300 transition-colors hover:bg-surface-hover hover:text-white"
+          className="flex items-center gap-2 rounded border border-border bg-surface px-4 py-2 text-xs font-medium text-zinc-300 transition-colors hover:bg-surface-hover hover:text-white"
         >
           <Home className="h-4 w-4" />
-          Volver al Inicio
+          Volver al inicio
         </Link>
       </div>
     </div>

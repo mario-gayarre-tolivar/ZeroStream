@@ -127,7 +127,7 @@
 - [x] **Paso 1:** Rediseñar `MediaCard.tsx`: imagen con aspecto cinematográfico, tipografía limpia, sin efectos de hover estridentes o etiquetas repetitivas.
 - [x] **Paso 2:** Optimizar `LiveSearch.tsx`: simplificar el hook de debounce, limpiar gestión de foco con teclado (flechas arriba/abajo y Escape) y destruir suscripciones al desmontar para no retener memoria.
 - [x] **Paso 3:** Comprobar con `npm test` (tests de debounce y Escape) y `npm run build`.
-- [ ] **Paso 4:** Commit del cambio.
+- [x] **Paso 4:** Commit del cambio.
 
 ---
 
@@ -141,10 +141,10 @@
 - Modify: `src/app/anime/page.tsx`
 - Modify: `src/app/ver/[type]/[id]/page.tsx`
 
-- [ ] **Paso 1:** Convertir las vistas de catálogo en Server Components puros donde la carga inicial de datos ocurra en el servidor sin serializaciones redundantes.
-- [ ] **Paso 2:** Implementar límites `<Suspense fallback={<CatalogSkeleton />}>` granulares para que la interfaz responda al instante en la primera carga.
-- [ ] **Paso 3:** Reducir la huella de `PlayerViewClient.tsx` para enviar al cliente únicamente los componentes que requieren interacción (reproductor, selector de episodios, botón de lista).
-- [ ] **Paso 4:** Ejecutar `npm run build` y verificar que el tamaño de los chunks JS ("First Load JS") se mantenga óptimo o disminuya.
+- [x] **Paso 1:** Convertir las vistas de catálogo en Server Components puros donde la carga inicial de datos ocurra en el servidor sin serializaciones redundantes.
+- [x] **Paso 2:** Implementar límites `<Suspense fallback={<CatalogSkeleton />}>` granulares para que la interfaz responda al instante en la primera carga.
+- [x] **Paso 3:** Reducir la huella de `PlayerViewClient.tsx` para enviar al cliente únicamente los componentes que requieren interacción (reproductor, selector de episodios, botón de lista).
+- [x] **Paso 4:** Ejecutar `npm run build` y verificar que el tamaño de los chunks JS ("First Load JS") se mantenga óptimo o disminuya.
 - [x] **Paso 5:** Commit del cambio.
 
 ### Task 3.2: Estados de Error, Carga y Limpieza Final (`src/app/`)
@@ -153,7 +153,7 @@
 - Modify: `src/app/loading.tsx`
 - Modify: `src/app/not-found.tsx`
 
-- [ ] **Paso 1:** Diseñar pantallas de error (`error.tsx`) y 404 (`not-found.tsx`) con un estilo minimalista y accionable (indicando qué ocurrió y cómo volver a navegar sin frustración).
-- [ ] **Paso 2:** Ejecutar la skill `ce-simplify-code` para podar variables, importaciones huérfanas y comentarios redundantes en todo el código.
-- [ ] **Paso 3:** Verificación final con suite completa: `npm test` y `npm run build`.
-- [ ] **Paso 4:** Commit final de la fase.
+- [x] **Paso 1:** Diseñar pantallas de error (`error.tsx`) y 404 (`not-found.tsx`) con un estilo minimalista y accionable (indicando qué ocurrió y cómo volver a navegar sin frustración).
+- [x] **Paso 2:** Ejecutar la skill `ce-simplify-code` para podar variables, importaciones huérfanas y comentarios redundantes en todo el código.
+- [x] **Paso 3:** Verificación final con suite completa: `npm test` y `npm run build`.
+- [x] **Paso 4:** Commit final de la fase.
