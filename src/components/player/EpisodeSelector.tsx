@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Season } from "@/types";
-import { Play } from "lucide-react";
+import { Play, Layers } from "lucide-react";
 
 interface EpisodeSelectorProps {
   seasons: Season[];
@@ -10,6 +10,7 @@ interface EpisodeSelectorProps {
   currentEpisode: number;
   onSelectEpisode: (season: number, episode: number) => void;
   onSelectSeason: (season: number) => void;
+  episodesPerPage?: number;
 }
 
 export function EpisodeSelector({
@@ -18,6 +19,7 @@ export function EpisodeSelector({
   currentEpisode,
   onSelectEpisode,
   onSelectSeason,
+  episodesPerPage = 100,
 }: EpisodeSelectorProps) {
   const activeSeasonData = useMemo(() => {
     if (!seasons || seasons.length === 0) return null;
@@ -28,40 +30,104 @@ export function EpisodeSelector({
     return activeSeasonData?.episodes || [];
   }, [activeSeasonData]);
 
+  // Cálculo de páginas / bloques de 100 episodios
+  const totalPages = useMemo(() => {
+    return Math.ceil(episodes.length / episodesPerPage);
+  }, [episodes.length, episodesPerPage]);
+
+  // Página activa inicial basada en el episodio actual
+  const [activePageIndex, setActivePageIndex] = useState(() => {
+    if (currentEpisode > 0) {
+      return Math.floor((currentEpisode - 1) / episodesPerPage);
+    }
+    return 0;
+  });
+
+  // Sincronizar página si el episodio actual cambia externamente a otro bloque
+  useEffect(() => {
+    if (currentEpisode > 0) {
+      const targetPage = Math.floor((currentEpisode - 1) / episodesPerPage);
+      if (targetPage >= 0 && targetPage < totalPages) {
+        setActivePageIndex(targetPage);
+      }
+    }
+  }, [currentEpisode, episodesPerPage, totalPages]);
+
+  // Episodios que se renderizan en el DOM (rebanada de la página activa)
+  const displayedEpisodes = useMemo(() => {
+    if (totalPages <= 1) return episodes;
+    const start = activePageIndex * episodesPerPage;
+    const end = start + episodesPerPage;
+    return episodes.slice(start, end);
+  }, [episodes, totalPages, activePageIndex, episodesPerPage]);
+
   if (!seasons || seasons.length === 0) return null;
 
   return (
     <div className="flex flex-col gap-4 rounded-xl border border-border bg-surface p-4 sm:p-5">
-      {/* Season Tabs Header */}
+      {/* Header: Temporadas y Selector de Rango */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/80 pb-3">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-          Lista de Capítulos
-        </h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+            Lista de Capítulos
+          </h3>
+          <span className="text-[11px] font-medium text-zinc-500">
+            ({episodes.length} {episodes.length === 1 ? "episodio" : "episodios"})
+          </span>
+        </div>
 
-        {/* Season Selector */}
-        {seasons.length > 1 && (
-          <div className="flex items-center gap-1.5 overflow-x-auto">
-            {seasons.map((s) => (
-              <button
-                key={s.seasonNumber}
-                type="button"
-                onClick={() => onSelectSeason(s.seasonNumber)}
-                className={`rounded px-3 py-1 text-xs font-medium transition-colors ${
-                  currentSeason === s.seasonNumber
-                    ? "bg-accent text-background font-semibold"
-                    : "bg-surface-active text-zinc-300 hover:bg-surface-hover hover:text-white"
-                }`}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Selector de Rango de Episodios (Bloques de 1-100 para animes/series largas) */}
+          {totalPages > 1 && (
+            <div className="flex items-center gap-1.5 bg-surface-active rounded border border-border px-2 py-1">
+              <Layers className="h-3.5 w-3.5 text-accent" />
+              <select
+                aria-label="Seleccionar rango de episodios"
+                value={activePageIndex}
+                onChange={(e) => setActivePageIndex(Number(e.target.value))}
+                className="bg-transparent text-xs font-medium text-white outline-none cursor-pointer"
               >
-                {s.name}
-              </button>
-            ))}
-          </div>
-        )}
+                {Array.from({ length: totalPages }, (_, idx) => {
+                  const startEp = idx * episodesPerPage + 1;
+                  const endEp = Math.min((idx + 1) * episodesPerPage, episodes.length);
+                  return (
+                    <option key={idx} value={idx} className="bg-surface text-white">
+                      Página {idx + 1} (Eps {startEp} - {endEp})
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+          )}
+
+          {/* Season Selector */}
+          {seasons.length > 1 && (
+            <div className="flex items-center gap-1.5 overflow-x-auto">
+              {seasons.map((s) => (
+                <button
+                  key={s.seasonNumber}
+                  type="button"
+                  onClick={() => {
+                    onSelectSeason(s.seasonNumber);
+                    setActivePageIndex(0);
+                  }}
+                  className={`rounded px-3 py-1 text-xs font-medium transition-colors ${
+                    currentSeason === s.seasonNumber
+                      ? "bg-accent text-background font-semibold"
+                      : "bg-surface-active text-zinc-300 hover:bg-surface-hover hover:text-white"
+                  }`}
+                >
+                  {s.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Episode Grid / List */}
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 max-h-[380px] overflow-y-auto pr-1">
-        {episodes.map((ep) => {
+        {displayedEpisodes.map((ep) => {
           const isPlaying =
             currentSeason === ep.seasonNumber && currentEpisode === ep.episodeNumber;
 

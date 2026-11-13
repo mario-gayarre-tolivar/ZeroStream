@@ -73,6 +73,12 @@ export function getEmbedServers(
         quality: "1080p",
         url: `https://vidsrc.me/embed/movie?tmdb=${targetId}`,
       },
+      {
+        id: "smashystream",
+        name: "Servidor Smashy (Ultra Fast)",
+        quality: "1080p Multi",
+        url: `https://player.smashy.stream/movie/${targetId}`,
+      },
     ];
   }
 
@@ -108,6 +114,12 @@ export function getEmbedServers(
         name: "Servidor Respaldo (VidSrc)",
         quality: "1080p",
         url: `https://vidsrc.me/embed/tv?tmdb=${targetId}&season=${season}&episode=${episode}`,
+      },
+      {
+        id: "smashystream",
+        name: "Servidor Smashy (Ultra Fast)",
+        quality: "1080p Multi",
+        url: `https://player.smashy.stream/tv/${targetId}?s=${season}&e=${episode}`,
       },
     ];
   }
@@ -146,6 +158,12 @@ export function getEmbedServers(
       name: "Servidor Anime Respaldo (VidSrc)",
       quality: "1080p",
       url: `https://vidsrc.me/embed/tv?tmdb=${targetId}&season=${season}&episode=${episode}`,
+    },
+    {
+      id: "anime-smashy",
+      name: "Servidor Anime Smashy",
+      quality: "1080p Multi",
+      url: `https://player.smashy.stream/tv/${targetId}?s=${season}&e=${episode}`,
     },
   ];
 }

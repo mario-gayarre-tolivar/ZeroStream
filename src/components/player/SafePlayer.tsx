@@ -180,13 +180,13 @@ export function SafePlayer({
             </div>
           )}
 
-          {/* Sandboxed Safe Iframe */}
+          {/* Safe Video Player Container */}
           {currentServer && (
             <iframe
               key={`${currentServer.id}-${iframeKey}-${season}-${episode}`}
               src={currentServer.url}
               allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-              sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"
+              referrerPolicy="no-referrer-when-downgrade"
               loading="eager"
               onLoad={() => setIsLoading(false)}
               className="h-full w-full border-0"
@@ -232,7 +232,7 @@ export function SafePlayer({
           {/* Safe notice */}
           <div className="flex items-center gap-1.5 text-zinc-400">
             <ShieldAlert className="h-3.5 w-3.5 text-amber-500/80" />
-            <span>Iframe sandboxed. Presiona &apos;T&apos; para modo cine o &apos;F&apos; para pantalla completa.</span>
+            <span>Streaming seguro y directo. Presiona &apos;T&apos; para modo cine o &apos;F&apos; para pantalla completa.</span>
           </div>
         </div>
       </div>

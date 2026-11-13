@@ -100,4 +100,48 @@ describe("Servicio AniList GraphQL y Fallbacks", () => {
     expect(detail.seasons.length).toBeGreaterThan(0);
     expect(detail.seasons[0].episodes.length).toBe(detail.totalEpisodes);
   });
+
+  it("debe calcular el número total de episodios emitidos a partir de nextAiringEpisode cuando episodes es null (animes continuos como One Piece)", async () => {
+    const mockOnePieceResponse = {
+      data: {
+        Media: {
+          id: 21,
+          title: {
+            romaji: "ONE PIECE",
+            english: "ONE PIECE",
+            native: "ワンピース",
+          },
+          description: "Gol D. Roger fue conocido como el 'Rey de los Piratas'...",
+          coverImage: {
+            extraLarge: "https://example.com/onepiece.jpg",
+            large: "https://example.com/onepiece.jpg",
+          },
+          bannerImage: "https://example.com/op-banner.jpg",
+          averageScore: 88,
+          episodes: null, // Null en AniList para series continuas
+          seasonYear: 1999,
+          status: "RELEASING",
+          genres: ["Action", "Adventure", "Comedy"],
+          duration: 24,
+          nextAiringEpisode: {
+            episode: 1125, // El próximo capítulo en emitirse es el 1125
+          },
+          trailer: null,
+        },
+      },
+    };
+
+    vi.spyOn(global, "fetch").mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockOnePieceResponse,
+    } as Response);
+
+    const detail = await getAnimeDetail(21);
+    expect(detail.id).toBe(21);
+    // Debe calcular 1125 - 1 = 1124 episodios emitidos, no caer en el falso límite de 12
+    expect(detail.totalEpisodes).toBe(1124);
+    expect(detail.seasons[0].episodeCount).toBe(1124);
+    expect(detail.seasons[0].episodes.length).toBe(1124);
+    expect(detail.seasons[0].episodes[1123].episodeNumber).toBe(1124);
+  });
 });

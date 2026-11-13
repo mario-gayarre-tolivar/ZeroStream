@@ -25,6 +25,10 @@ describe("Servicio de Embeds (Zero-Storage)", () => {
     const superembed = servers.find((s) => s.id === "superembed");
     expect(superembed).toBeDefined();
     expect(superembed?.url).toContain("multiembed.mov/?video_id=550&tmdb=1");
+
+    const smashy = servers.find((s) => s.id === "smashystream");
+    expect(smashy).toBeDefined();
+    expect(smashy?.url).toContain("player.smashy.stream/movie/550");
   });
 
   it("debe incluir temporada y episodio para series de TV", () => {

@@ -52,6 +52,9 @@ query ($id: Int) {
     status
     genres
     duration
+    nextAiringEpisode {
+      episode
+    }
     trailer {
       id
       site
@@ -131,6 +134,20 @@ const FALLBACK_ANIME: MediaItem[] = [
     genres: ["Misterio", "Psicológico", "Suspense"],
     totalEpisodes: 37,
     status: "FINISHED",
+  },
+  {
+    id: 21,
+    title: "One Piece",
+    originalTitle: "ワンピース",
+    type: "anime",
+    overview: "Monkey D. Luffy zarpa junto a los Piratas de Sombrero de Paja en busca del legendario tesoro One Piece para convertirse en el Rey de los Piratas.",
+    posterPath: "https://images.unsplash.com/photo-1578632767115-351597cf2477?w=600&auto=format&fit=crop&q=80",
+    backdropPath: "https://images.unsplash.com/photo-1534447677768-be436bb09401?w=1200&auto=format&fit=crop&q=80",
+    voteAverage: 8.9,
+    releaseDate: "1999",
+    genres: ["Acción", "Aventura", "Fantasía"],
+    totalEpisodes: 1124,
+    status: "RELEASING",
   },
   {
     id: 20,
@@ -224,7 +241,14 @@ export async function getAnimeDetail(id: string | number): Promise<MediaDetail> 
       const data = await res.json();
       const m = data?.data?.Media;
       if (m) {
-        const totalEp = m.episodes || 12;
+        let totalEp = m.episodes;
+        if (!totalEp && m.nextAiringEpisode?.episode) {
+          totalEp = Math.max(1, m.nextAiringEpisode.episode - 1);
+        }
+        if (!totalEp) {
+          totalEp = m.id === 21 ? 1124 : 12;
+        }
+
         const episodesList = Array.from({ length: totalEp }, (_, i) => ({
           episodeNumber: i + 1,
           seasonNumber: 1,

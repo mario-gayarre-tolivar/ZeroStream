@@ -24,7 +24,7 @@ describe("<SafePlayer /> — Reproductor Sandboxed Seguro", () => {
     vi.restoreAllMocks();
   });
 
-  it("debe renderizar el iframe con política de sandbox estricta", () => {
+  it("debe renderizar el iframe sin atributo sandbox para compatibilidad total con servidores externos", () => {
     const { container } = render(
       <SafePlayer
         servers={mockServers}
@@ -38,15 +38,11 @@ describe("<SafePlayer /> — Reproductor Sandboxed Seguro", () => {
     const iframe = container.querySelector("iframe");
     expect(iframe).toBeInTheDocument();
     expect(iframe).toHaveAttribute("src", "https://vidsrc.me/embed/movie?tmdb=550");
-
-    const sandbox = iframe?.getAttribute("sandbox") || "";
-    expect(sandbox).toContain("allow-scripts");
-    expect(sandbox).toContain("allow-same-origin");
-    expect(sandbox).toContain("allow-forms");
-
-    // Seguridad: NO debe permitir navegación ni popups libres fuera del sandbox
-    expect(sandbox).not.toContain("allow-top-navigation");
-    expect(sandbox).not.toContain("allow-popups-to-escape-sandbox");
+    // Compatibilidad total: NO debe tener atributo sandbox
+    expect(iframe?.getAttribute("sandbox")).toBeNull();
+    // Atributos de reproducción requeridos
+    expect(iframe).toHaveAttribute("allow", expect.stringContaining("autoplay"));
+    expect(iframe).toHaveAttribute("referrerpolicy", "no-referrer-when-downgrade");
   });
 
   it("debe alternar de servidor al pulsar en Servidor Secundario", () => {
