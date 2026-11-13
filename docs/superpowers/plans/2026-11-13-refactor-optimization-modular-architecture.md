@@ -98,7 +98,7 @@
   - Escala tipográfica refinada con ritmo vertical claro y espaciado generoso.
 - [x] **Paso 2:** Rediseñar `Header.tsx` y `Footer.tsx` eliminando bordes innecesarios, aplicando navegación minimalista con enlaces claros y accesibilidad de teclado (`focus-visible`).
 - [x] **Paso 3:** Ejecutar `npm test` y `npm run build`.
-- [ ] **Paso 4:** Commit del cambio.
+- [x] **Paso 4:** Commit del cambio.
 
 ### Task 2.2: Desacoplamiento y Composición del Reproductor (`src/components/player/`)
 **Files:**
@@ -108,12 +108,12 @@
 - Test: `src/__tests__/components/SafePlayer.test.tsx`
 - Test: `src/__tests__/components/EpisodeSelector.test.tsx`
 
-- [ ] **Paso 1:** Aplicar la skill `vercel-composition-patterns`:
+- [x] **Paso 1:** Aplicar la skill `vercel-composition-patterns`:
   - Extraer la barra de servidores de `SafePlayer.tsx` hacia un subcomponente modular `ServerSelector.tsx`.
   - Desacoplar el estado de advertencia de sandbox y el iframe en bloques independientes.
-- [ ] **Paso 2:** Optimizar `EpisodeSelector.tsx`: memorización de lista de episodios, renderizado eficiente con paginación por temporadas sin re-renderizar todo el árbol.
-- [ ] **Paso 3:** Ejecutar tests unitarios existentes y añadir pruebas de cambio de servidor sin recarga completa.
-- [x] **Paso 4:** Commit del cambio.
+- [x] **Paso 2:** Optimizar `EpisodeSelector.tsx`: memorización de lista de episodios, renderizado eficiente con paginación por temporadas sin re-renderizar todo el árbol.
+- [x] **Paso 3:** Ejecutar tests unitarios existentes y añadir pruebas de cambio de servidor sin recarga completa.
+- [ ] **Paso 4:** Commit del cambio.
 
 ### Task 2.3: Refactorización de Catálogo, Tarjetas y Búsqueda (`src/components/media/` y `layout/`)
 **Files:**

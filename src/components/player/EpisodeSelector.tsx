@@ -1,7 +1,8 @@
 "use client";
 
-import { Season, Episode } from "@/types";
-import { Play, CheckCircle2 } from "lucide-react";
+import { useMemo } from "react";
+import { Season } from "@/types";
+import { Play } from "lucide-react";
 
 interface EpisodeSelectorProps {
   seasons: Season[];
@@ -18,17 +19,22 @@ export function EpisodeSelector({
   onSelectEpisode,
   onSelectSeason,
 }: EpisodeSelectorProps) {
-  if (!seasons || seasons.length === 0) return null;
+  const activeSeasonData = useMemo(() => {
+    if (!seasons || seasons.length === 0) return null;
+    return seasons.find((s) => s.seasonNumber === currentSeason) || seasons[0];
+  }, [seasons, currentSeason]);
 
-  const activeSeasonData =
-    seasons.find((s) => s.seasonNumber === currentSeason) || seasons[0];
-  const episodes = activeSeasonData.episodes || [];
+  const episodes = useMemo(() => {
+    return activeSeasonData?.episodes || [];
+  }, [activeSeasonData]);
+
+  if (!seasons || seasons.length === 0) return null;
 
   return (
     <div className="flex flex-col gap-4 rounded-xl border border-border bg-surface p-4 sm:p-5">
       {/* Season Tabs Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/80 pb-3">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
           Lista de Capítulos
         </h3>
 
@@ -38,11 +44,12 @@ export function EpisodeSelector({
             {seasons.map((s) => (
               <button
                 key={s.seasonNumber}
+                type="button"
                 onClick={() => onSelectSeason(s.seasonNumber)}
-                className={`rounded-md px-3 py-1 text-xs font-semibold transition-colors ${
+                className={`rounded px-3 py-1 text-xs font-medium transition-colors ${
                   currentSeason === s.seasonNumber
-                    ? "bg-accent text-white"
-                    : "bg-surface-active text-slate-300 hover:bg-surface-hover hover:text-white"
+                    ? "bg-accent text-background font-semibold"
+                    : "bg-surface-active text-zinc-300 hover:bg-surface-hover hover:text-white"
                 }`}
               >
                 {s.name}
@@ -61,18 +68,19 @@ export function EpisodeSelector({
           return (
             <button
               key={`${ep.seasonNumber}-${ep.episodeNumber}`}
+              type="button"
               onClick={() => onSelectEpisode(ep.seasonNumber, ep.episodeNumber)}
-              className={`group flex items-center justify-between rounded-lg border p-2.5 text-left transition-all ${
+              className={`group flex items-center justify-between rounded border p-2.5 text-left transition-all ${
                 isPlaying
-                  ? "border-accent bg-accent/15 text-white shadow-sm"
-                  : "border-border bg-surface-active text-slate-300 hover:border-border-active hover:bg-surface-hover hover:text-white"
+                  ? "border-accent bg-accent/10 text-white shadow-sm"
+                  : "border-border bg-surface-active text-zinc-300 hover:border-border-active hover:bg-surface-hover hover:text-white"
               }`}
             >
-              <div className="flex flex-col">
+              <div className="flex flex-col min-w-0 pr-1">
                 <span className="text-[11px] font-semibold text-accent">
                   Episodio {ep.episodeNumber}
                 </span>
-                <span className="line-clamp-1 text-xs text-slate-200">
+                <span className="truncate text-xs text-zinc-200">
                   {ep.title || `Capítulo ${ep.episodeNumber}`}
                 </span>
               </div>
@@ -80,7 +88,7 @@ export function EpisodeSelector({
               {isPlaying ? (
                 <Play className="h-3.5 w-3.5 shrink-0 fill-accent text-accent" />
               ) : (
-                <Play className="h-3.5 w-3.5 shrink-0 text-slate-500 opacity-0 transition-opacity group-hover:opacity-100" />
+                <Play className="h-3.5 w-3.5 shrink-0 text-zinc-500 opacity-0 transition-opacity group-hover:opacity-100" />
               )}
             </button>
           );
