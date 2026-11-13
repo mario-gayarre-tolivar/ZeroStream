@@ -2,10 +2,22 @@ import { describe, it, expect } from "vitest";
 import { getEmbedServers, resolveTmdbId } from "@/services/embeds";
 
 describe("Servicio de Embeds (Zero-Storage)", () => {
-  it("debe resolver IDs de AniList a TMDB para animes populares", () => {
+  it("debe resolver IDs de AniList a TMDB para animes populares y corregir asignaciones erróneas", () => {
     expect(resolveTmdbId("anime", 16498)).toBe("1429"); // Attack on Titan
     expect(resolveTmdbId("anime", 20)).toBe("46260"); // Naruto
     expect(resolveTmdbId("movie", 550)).toBe("550"); // Movie ID intact
+
+    // Casos reportados corregidos
+    expect(resolveTmdbId("anime", 11061)).toBe("46298"); // Hunter x Hunter (2011), no 42705 (Hajime no Ippo)
+    expect(resolveTmdbId("anime", 161645)).toBe("220542"); // The Apothecary Diaries / Kusuriya no Hitorigoto
+    expect(resolveTmdbId("anime", 1735)).toBe("31910"); // Naruto Shippuden, no 46298
+    expect(resolveTmdbId("anime", 20605)).toBe("61374"); // Tokyo Ghoul, no 61663
+  });
+
+  it("debe priorizar explicitTmdbId sobre el mapeo estático cuando se proporciona", () => {
+    // Si se pasa un tmdbId explícito resuelto dinámicamente, debe tener precedencia
+    expect(resolveTmdbId("anime", 999999, "88888")).toBe("88888");
+    expect(resolveTmdbId("anime", 11061, "99999")).toBe("99999");
   });
 
   it("debe generar servidores de alta disponibilidad para películas con VidLink y Embed.su", () => {
@@ -44,15 +56,64 @@ describe("Servicio de Embeds (Zero-Storage)", () => {
     expect(superembed?.url).toContain("s=2&e=5");
   });
 
-  it("debe proveer servidores dedicados para anime con resolución de ID a TMDB", () => {
+  it("debe proveer servidores dedicados para anime nativos (Zoko/HiAnime y VidLink Anime) con MAL ID y episodio absoluto", () => {
+    // Caso Hunter x Hunter: AniList ID 11061, MAL ID 11061, Episodio 70
+    const servers = getEmbedServers("anime", 11061, 1, 70, "Hunter x Hunter", "46298", 11061);
+
+    // Servidor HiAnime Sub (Zoko)
+    const zokoSub = servers.find((s) => s.id === "anime-zoko-sub");
+    expect(zokoSub).toBeDefined();
+    expect(zokoSub?.url).toContain("zokoanime.video/stream/mal/11061/70/sub?color=f0b44c");
+    expect(zokoSub?.isRecommended).toBe(true);
+
+    // Servidor HiAnime Dub (Zoko)
+    const zokoDub = servers.find((s) => s.id === "anime-zoko-dub");
+    expect(zokoDub).toBeDefined();
+    expect(zokoDub?.url).toContain("zokoanime.video/stream/mal/11061/70/dub?color=f0b44c");
+
+    // Servidor VidLink Anime Sub
+    const vidlinkSub = servers.find((s) => s.id === "anime-vidlink-sub");
+    expect(vidlinkSub).toBeDefined();
+    expect(vidlinkSub?.url).toContain("vidlink.pro/anime/11061/70/sub?fallback=true");
+
+    // Servidor VidLink Anime Dub
+    const vidlinkDub = servers.find((s) => s.id === "anime-vidlink-dub");
+    expect(vidlinkDub).toBeDefined();
+    expect(vidlinkDub?.url).toContain("vidlink.pro/anime/11061/70/dub?fallback=true");
+  });
+
+  it("debe usar AniList ID como fallback si no se proporciona malId para servidores nativos", () => {
     const servers = getEmbedServers("anime", 16498, 1, 5, "Shingeki no Kyojin");
 
-    const vidlink = servers.find((s) => s.id === "anime-vidlink");
-    expect(vidlink).toBeDefined();
-    // 16498 de AniList debe resolverse a 1429 de TMDB
-    expect(vidlink?.url).toContain("vidlink.pro/tv/1429/1/5");
+    const zokoSub = servers.find((s) => s.id === "anime-zoko-sub");
+    expect(zokoSub?.url).toContain("zokoanime.video/stream/mal/16498/5/sub");
 
+    const vidlinkSub = servers.find((s) => s.id === "anime-vidlink-sub");
+    expect(vidlinkSub?.url).toContain("vidlink.pro/anime/16498/5/sub");
+  });
+
+  it("debe mantener servidores TMDB de respaldo al final de la lista para anime", () => {
+    const servers = getEmbedServers(
+      "anime",
+      161645,
+      1,
+      1,
+      "The Apothecary Diaries",
+      "220542",
+      54492
+    );
+
+    // Servidores nativos primero
+    expect(servers[0].id).toBe("anime-zoko-sub");
+    expect(servers[0].url).toContain("zokoanime.video/stream/mal/54492/1/sub");
+
+    // Servidores TMDB de respaldo al final
     const embedsu = servers.find((s) => s.id === "anime-embedsu");
-    expect(embedsu?.url).toContain("embed.su/embed/tv/1429/1/5");
+    expect(embedsu).toBeDefined();
+    expect(embedsu?.url).toContain("embed.su/embed/tv/220542/1/1");
+
+    const superembed = servers.find((s) => s.id === "anime-super");
+    expect(superembed).toBeDefined();
+    expect(superembed?.url).toContain("multiembed.mov/?video_id=220542&tmdb=1&s=1&e=1");
   });
 });

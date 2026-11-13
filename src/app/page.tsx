@@ -3,7 +3,6 @@ import { getCachedCatalog } from "@/services/catalog-cache";
 import { HeroBanner } from "@/components/home/HeroBanner";
 import { ContinueWatching } from "@/components/home/ContinueWatching";
 import { MediaGrid } from "@/components/media/MediaGrid";
-import { Film, Tv, Sparkles, ChevronRight } from "lucide-react";
 
 export const revalidate = 3600; // Cache 1 hora
 
@@ -21,7 +20,7 @@ export default async function HomePage() {
   const featured = movies[0] || anime[0] || series[0];
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-14 sm:gap-20">
       {/* Featured Spotlight Banner */}
       {featured && <HeroBanner item={featured} />}
 
@@ -31,15 +30,14 @@ export default async function HomePage() {
       {/* Películas Populares */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Film className="h-4 w-4 text-accent" />
-            <h2 className="text-lg font-semibold tracking-tight text-white">Películas populares</h2>
-          </div>
+          <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+            Películas populares
+          </h2>
           <Link
             href="/peliculas"
-            className="flex items-center gap-1 text-xs font-medium text-zinc-400 hover:text-white transition-colors"
+            className="text-sm font-medium text-muted hover:text-foreground transition-colors"
           >
-            Ver todas <ChevronRight className="h-3.5 w-3.5" />
+            Ver todo
           </Link>
         </div>
         <MediaGrid items={movies.slice(0, 6)} />
@@ -48,15 +46,14 @@ export default async function HomePage() {
       {/* Series Destacadas */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Tv className="h-4 w-4 text-accent" />
-            <h2 className="text-lg font-semibold tracking-tight text-white">Series destacadas</h2>
-          </div>
+          <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+            Series destacadas
+          </h2>
           <Link
             href="/series"
-            className="flex items-center gap-1 text-xs font-medium text-zinc-400 hover:text-white transition-colors"
+            className="text-sm font-medium text-muted hover:text-foreground transition-colors"
           >
-            Ver todas <ChevronRight className="h-3.5 w-3.5" />
+            Ver todo
           </Link>
         </div>
         <MediaGrid items={series.slice(0, 6)} />
@@ -65,15 +62,14 @@ export default async function HomePage() {
       {/* Anime en Emisión */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-accent" />
-            <h2 className="text-lg font-semibold tracking-tight text-white">Anime en emisión</h2>
-          </div>
+          <h2 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+            Anime en emisión
+          </h2>
           <Link
             href="/anime"
-            className="flex items-center gap-1 text-xs font-medium text-zinc-400 hover:text-white transition-colors"
+            className="text-sm font-medium text-muted hover:text-foreground transition-colors"
           >
-            Ver catálogo completo <ChevronRight className="h-3.5 w-3.5" />
+            Ver todo
           </Link>
         </div>
         <MediaGrid items={anime.slice(0, 6)} />

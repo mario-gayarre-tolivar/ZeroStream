@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { WatchHistoryItem } from "@/types";
 import { getWatchHistory } from "@/services/history";
-import { Play, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 
 export function ContinueWatching() {
   const [history, setHistory] = useState<WatchHistoryItem[]>([]);
@@ -20,14 +20,16 @@ export function ContinueWatching() {
     <section className="mb-12 w-full">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Clock className="h-5 w-5 text-accent" />
-          <h2 className="text-xl font-bold tracking-tight text-white">Continuar Viendo</h2>
+          <Clock className="h-5 w-5 text-accent" aria-hidden="true" />
+          <h2 className="font-display text-xl font-bold tracking-tight text-foreground">
+            Continuar viendo
+          </h2>
         </div>
         <Link
           href="/mi-lista"
-          className="text-xs font-medium text-slate-400 hover:text-white transition-colors"
+          className="text-sm font-medium text-muted hover:text-foreground transition-colors"
         >
-          Ver todo el historial →
+          Ver historial completo
         </Link>
       </div>
 
@@ -42,7 +44,7 @@ export function ContinueWatching() {
             <Link
               key={`${item.type}-${item.id}`}
               href={resumeUrl}
-              className="group relative flex w-44 shrink-0 flex-col overflow-hidden rounded-xl border border-border bg-surface transition-all hover:-translate-y-1 hover:border-border-active"
+              className="group relative flex w-44 shrink-0 flex-col overflow-hidden rounded-poster border border-border bg-surface transition-colors hover:border-border-active"
             >
               <div className="relative aspect-[16/9] w-full overflow-hidden bg-surface-active">
                 {item.posterPath ? (
@@ -51,26 +53,20 @@ export function ContinueWatching() {
                     alt={item.title}
                     fill
                     sizes="176px"
-                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    className="object-cover"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-xs text-slate-500">
-                    Sin Miniatura
+                  <div className="flex h-full w-full items-center justify-center text-xs text-faint">
+                    Sin miniatura
                   </div>
                 )}
-
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-accent text-white shadow">
-                    <Play className="h-4 w-4 fill-white pl-0.5" />
-                  </span>
-                </div>
               </div>
 
-              <div className="p-2.5">
-                <h3 className="line-clamp-1 text-xs font-semibold text-slate-100 group-hover:text-accent">
+              <div className="p-3">
+                <h3 className="line-clamp-1 text-sm font-medium text-foreground group-hover:text-accent transition-colors">
                   {item.title}
                 </h3>
-                <span className="mt-1 block text-[11px] text-accent font-medium">
+                <span className="mt-1 block text-xs text-accent font-medium">
                   {item.episodeTitle || "Reanudar"}
                 </span>
               </div>

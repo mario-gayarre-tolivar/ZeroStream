@@ -3,8 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --background: #090a0d;
-  --foreground: #f3f4f6;
+  color-scheme: dark;
+  --background: #0e1417;
+  --foreground: #ece6da;
+  --surface: #19232a;
+  --surface-active: #2a3942;
+  --border: #2b3a43;
+  --border-active: #6a808c;
+  --accent: #f0b44c;
 }
 
 body {
@@ -15,6 +21,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+h1,
+h2 {
+  text-wrap: balance;
+}
+
 /* Custom minimal scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
@@ -22,21 +33,21 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #090a0d;
+  background: var(--background);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1f232d;
+  background: var(--border);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #323846;
+  background: var(--border-active);
 }
 
 /* Accessible focus outline */
 :focus-visible {
-  outline: 2px solid #e5a93c;
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
@@ -53,4 +64,26 @@ body {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Keyboard key hint */
+.kbd {
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--surface-active);
+  padding: 0.125rem 0.5rem;
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

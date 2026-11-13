@@ -12,13 +12,27 @@ const ANILIST_TO_TMDB_MAP: Record<string, string> = {
   "1535": "13916", // Death Note
   "20": "46260", // Naruto
   "21": "37854", // One Piece
-  "11061": "42705", // Hunter x Hunter (2011)
+  "11061": "46298", // Hunter x Hunter (2011) - Corregido (antes 42705 que era Hajime no Ippo)
   "21459": "65930", // Boku no Hero Academia
-  "1735": "46298", // Naruto Shippuden
-  "20605": "61663", // Tokyo Ghoul
+  "1735": "31910", // Naruto Shippuden - Corregido (antes 46298)
+  "20605": "61374", // Tokyo Ghoul - Corregido (antes 61663)
+  "161645": "220542", // The Apothecary Diaries / Kusuriya no Hitorigoto
+  "142838": "209867", // Sousou no Frieren
+  "154587": "209867", // Frieren: Beyond Journey's End
+  "140960": "120089", // SPY x FAMILY
+  "145139": "203737", // Oshi no Ko
+  "153518": "119495", // The Eminence in Shadow
+  "10087": "45845", // Fate/Zero
 };
 
-export function resolveTmdbId(type: MediaType, id: string | number): string {
+export function resolveTmdbId(
+  type: MediaType,
+  id: string | number,
+  explicitTmdbId?: string | number
+): string {
+  if (explicitTmdbId) {
+    return String(explicitTmdbId);
+  }
   const strId = String(id);
   if (type === "anime") {
     return ANILIST_TO_TMDB_MAP[strId] || strId;
@@ -35,9 +49,11 @@ export function getEmbedServers(
   id: string | number,
   season: number = 1,
   episode: number = 1,
-  title?: string
+  title?: string,
+  tmdbId?: string | number,
+  malId?: string | number
 ): ServerOption[] {
-  const targetId = resolveTmdbId(type, id);
+  const targetId = resolveTmdbId(type, id, tmdbId);
   const encodedTitle = encodeURIComponent(title || "");
 
   if (type === "movie") {
@@ -124,44 +140,58 @@ export function getEmbedServers(
     ];
   }
 
-  // Para Anime: Utilizar ID resuelto o fallback por título codificado
+  // Para Anime: Servidores nativos por MyAnimeList ID y episodio absoluto
+  const targetMalId = malId || id;
+  const animeAccentColor = "f0b44c"; // Token de acento Sodio
+
   return [
     {
-      id: "anime-vidlink",
-      name: "Servidor Anime Alpha (VidLink)",
-      quality: "1080p Sub/Dub",
-      url: `https://vidlink.pro/tv/${targetId}/${season}/${episode}`,
+      id: "anime-zoko-sub",
+      name: "Servidor HiAnime Sub (Zoko)",
+      quality: "1080p Subtitulado",
+      url: `https://zokoanime.video/stream/mal/${targetMalId}/${episode}/sub?color=${animeAccentColor}`,
       isRecommended: true,
     },
     {
+      id: "anime-zoko-dub",
+      name: "Servidor HiAnime Dub (Zoko)",
+      quality: "1080p Doblado",
+      url: `https://zokoanime.video/stream/mal/${targetMalId}/${episode}/dub?color=${animeAccentColor}`,
+    },
+    {
+      id: "anime-vidlink-sub",
+      name: "Servidor VidLink Anime Sub",
+      quality: "1080p Multi Sub",
+      url: `https://vidlink.pro/anime/${targetMalId}/${episode}/sub?fallback=true`,
+    },
+    {
+      id: "anime-vidlink-dub",
+      name: "Servidor VidLink Anime Dub",
+      quality: "1080p Multi Dub",
+      url: `https://vidlink.pro/anime/${targetMalId}/${episode}/dub?fallback=true`,
+    },
+    // Servidores de respaldo occidentales (TMDB TV)
+    {
       id: "anime-embedsu",
-      name: "Servidor Anime Beta (Embed.su)",
+      name: "Servidor Anime Respaldo (Embed.su)",
       quality: "1080p Multi",
       url: `https://embed.su/embed/tv/${targetId}/${season}/${episode}`,
     },
     {
       id: "anime-super",
-      name: "Servidor Anime Gamma (SuperEmbed)",
+      name: "Servidor Anime Respaldo (SuperEmbed)",
       quality: "HD Multi",
-      url: title
-        ? `https://multiembed.mov/?video_id=${targetId}&tmdb=1&s=${season}&e=${episode}`
-        : `https://multiembed.mov/?video_id=${targetId}&tmdb=1&s=${season}&e=${episode}`,
+      url: `https://multiembed.mov/?video_id=${targetId}&tmdb=1&s=${season}&e=${episode}`,
     },
     {
       id: "anime-autoembed",
-      name: "Servidor Anime Delta (AutoEmbed)",
+      name: "Servidor Anime Respaldo (AutoEmbed)",
       quality: "HD 1080p",
       url: `https://player.autoembed.cc/embed/tv/${targetId}/${season}/${episode}`,
     },
     {
-      id: "anime-vidsrc",
-      name: "Servidor Anime Respaldo (VidSrc)",
-      quality: "1080p",
-      url: `https://vidsrc.me/embed/tv?tmdb=${targetId}&season=${season}&episode=${episode}`,
-    },
-    {
       id: "anime-smashy",
-      name: "Servidor Anime Smashy",
+      name: "Servidor Anime Respaldo (Smashy)",
       quality: "1080p Multi",
       url: `https://player.smashy.stream/tv/${targetId}?s=${season}&e=${episode}`,
     },

@@ -72,14 +72,14 @@ export function EpisodeSelector({
   if (!seasons || seasons.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-4 sm:p-5 w-full">
+    <div className="flex flex-col gap-3 rounded-poster border border-border bg-surface p-4 sm:p-5 w-full">
       {/* Header: Título y Controles Desplegables de Temporada y Rango */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/80 pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-3">
         <div className="flex items-center gap-2">
-          <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+          <h3 className="text-sm font-semibold text-foreground">
             Lista de Capítulos
           </h3>
-          <span className="text-[11px] font-medium text-zinc-500">
+          <span className="text-xs font-medium text-muted">
             ({episodes.length} {episodes.length === 1 ? "episodio" : "episodios"})
           </span>
         </div>
@@ -90,7 +90,7 @@ export function EpisodeSelector({
             <CustomDropdown
               label="Temporada"
               ariaLabel="Seleccionar temporada"
-              icon={<Tv className="h-3.5 w-3.5" />}
+              icon={<Tv className="h-3.5 w-3.5" aria-hidden="true" />}
               options={seasons.map((s) => ({
                 value: s.seasonNumber,
                 label: s.name,
@@ -109,7 +109,7 @@ export function EpisodeSelector({
             <CustomDropdown
               label="Rango de episodios"
               ariaLabel="Seleccionar rango de episodios"
-              icon={<Layers className="h-3.5 w-3.5" />}
+              icon={<Layers className="h-3.5 w-3.5" aria-hidden="true" />}
               options={Array.from({ length: totalPages }, (_, idx) => {
                 const startEp = idx * episodesPerPage + 1;
                 const endEp = Math.min((idx + 1) * episodesPerPage, episodes.length);
@@ -126,16 +126,16 @@ export function EpisodeSelector({
       </div>
 
       {/* Banner Informativo del Capítulo Seleccionado */}
-      <div className="flex items-center gap-2 rounded-lg bg-surface-active/80 border border-border/60 px-3 py-2 text-xs">
+      <div className="flex items-center gap-2 rounded-poster bg-surface-active border border-border px-3 py-2 text-sm">
         <span className="font-bold text-accent shrink-0">
           Capítulo {currentEpisode}:
         </span>
-        <span className="truncate text-zinc-200 font-medium">
+        <span className="truncate text-foreground font-medium">
           {activeEpisodeTitle}
         </span>
       </div>
 
-      {/* Dense Numeric Episode Grid: Celdas compactas con solo el número */}
+      {/* Dense Numeric Episode Grid */}
       <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-1.5 max-h-[300px] overflow-y-auto pr-1">
         {displayedEpisodes.map((ep) => {
           const isPlaying =
@@ -147,10 +147,10 @@ export function EpisodeSelector({
               type="button"
               onClick={() => onSelectEpisode(ep.seasonNumber, ep.episodeNumber)}
               aria-label={`${ep.episodeNumber}`}
-              className={`h-9 w-full flex items-center justify-center rounded font-mono text-xs font-bold transition-all ${
+              className={`h-9 w-full flex items-center justify-center rounded-poster font-mono text-sm font-medium tabular-nums transition-colors ${
                 isPlaying
-                  ? "border border-accent bg-accent text-background shadow-sm ring-1 ring-accent"
-                  : "border border-border bg-surface-active text-zinc-300 hover:border-accent/60 hover:bg-surface-hover hover:text-white"
+                  ? "border border-accent bg-accent text-accent-ink font-semibold"
+                  : "border border-border bg-surface-active text-foreground hover:border-border-active hover:bg-surface-hover"
               }`}
             >
               {ep.episodeNumber}

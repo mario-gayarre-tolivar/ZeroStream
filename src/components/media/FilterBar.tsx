@@ -41,9 +41,9 @@ export function FilterBar({ genres, currentGenre }: FilterBarProps) {
     <div className="mb-8 flex flex-col gap-4">
       {/* Search tag indicator if active */}
       {currentSearch && (
-        <div className="flex items-center gap-2 text-sm text-zinc-300">
+        <div className="flex items-center gap-2 text-sm text-muted">
           <span>Resultados para:</span>
-          <span className="rounded bg-surface-active px-2.5 py-1 font-semibold text-accent">
+          <span className="rounded-poster bg-surface-active px-2.5 py-1 font-semibold text-accent">
             &ldquo;{currentSearch}&rdquo;
           </span>
           <button
@@ -53,9 +53,9 @@ export function FilterBar({ genres, currentGenre }: FilterBarProps) {
               params.delete("q");
               router.push(`${pathname}?${params.toString()}`);
             }}
-            className="flex items-center gap-1 text-xs text-zinc-400 hover:text-white"
+            className="flex items-center gap-1 text-sm text-muted hover:text-foreground"
           >
-            <X className="h-3.5 w-3.5" />
+            <X className="h-3.5 w-3.5" aria-hidden="true" />
             Quitar búsqueda
           </button>
         </div>
@@ -66,10 +66,10 @@ export function FilterBar({ genres, currentGenre }: FilterBarProps) {
         <button
           type="button"
           onClick={clearAllFilters}
-          className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
+          className={`shrink-0 rounded-chip px-3.5 py-1.5 text-sm font-medium transition-colors ${
             !selectedGenre
-              ? "bg-accent text-background font-semibold"
-              : "border border-border bg-surface text-zinc-400 hover:bg-surface-hover hover:text-white"
+              ? "bg-accent text-accent-ink font-semibold"
+              : "border border-border-active bg-surface text-muted hover:bg-surface-hover hover:text-foreground"
           }`}
         >
           Todos
@@ -82,10 +82,10 @@ export function FilterBar({ genres, currentGenre }: FilterBarProps) {
               key={genre}
               type="button"
               onClick={() => handleGenreClick(genre)}
-              className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
+              className={`shrink-0 rounded-chip px-3.5 py-1.5 text-sm font-medium transition-colors ${
                 isSelected
-                  ? "bg-accent text-background font-semibold"
-                  : "border border-border bg-surface text-zinc-400 hover:bg-surface-hover hover:text-white"
+                  ? "bg-accent text-accent-ink font-semibold"
+                  : "border border-border-active bg-surface text-muted hover:bg-surface-hover hover:text-foreground"
               }`}
             >
               {genre}

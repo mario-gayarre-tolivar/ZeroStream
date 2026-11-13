@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { MediaItem, MediaType } from "@/types";
 import { MediaCard } from "./MediaCard";
 import { Pagination } from "./Pagination";
-import { Loader2, Plus, Sparkles } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 
 interface LoadMoreCatalogProps {
   initialItems: MediaItem[];
@@ -90,7 +90,7 @@ export function LoadMoreCatalog({
           <button
             onClick={handleLoadMore}
             disabled={isLoadingMore}
-            className="flex items-center gap-2 rounded-xl border border-border bg-surface px-6 py-3 text-xs font-semibold text-slate-200 shadow-sm transition-all hover:border-border-active hover:bg-surface-hover hover:text-white disabled:opacity-50"
+            className="flex items-center gap-2 rounded-poster border border-border-active bg-surface px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:bg-surface-hover disabled:opacity-50"
           >
             {isLoadingMore ? (
               <>

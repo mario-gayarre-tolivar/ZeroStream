@@ -91,14 +91,14 @@ export function CustomDropdown({
         aria-expanded={isOpen}
         aria-controls={listboxId}
         aria-label={ariaLabel || label}
-        className={`flex items-center gap-1.5 rounded-lg border border-border bg-surface-active px-2.5 py-1.5 text-xs font-medium text-white transition-all hover:border-border-active hover:bg-surface-hover ${
+        className={`flex items-center gap-1.5 rounded-poster border border-border-active bg-surface-active px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-surface-hover ${
           isOpen ? "ring-1 ring-accent border-accent" : ""
         }`}
       >
         {icon && <span className="text-accent">{icon}</span>}
         <span className="truncate max-w-[150px]">{selectedOption?.label}</span>
         <ChevronDown
-          className={`h-3.5 w-3.5 text-zinc-400 transition-transform duration-150 ${
+          className={`h-3.5 w-3.5 text-muted transition-transform duration-150 ${
             isOpen ? "rotate-180 text-accent" : ""
           }`}
         />
@@ -111,7 +111,7 @@ export function CustomDropdown({
           role="listbox"
           tabIndex={-1}
           aria-label={ariaLabel || label}
-          className={`absolute z-50 mt-1.5 min-w-[180px] max-w-[calc(100vw-2.5rem)] sm:max-w-[280px] max-h-64 overflow-y-auto rounded-xl border border-border bg-surface/95 p-1.5 shadow-2xl backdrop-blur-md animate-in fade-in zoom-in-95 duration-150 ease-out focus:outline-none ${alignmentClasses}`}
+          className={`absolute z-50 mt-1.5 min-w-[180px] max-w-[calc(100vw-2.5rem)] sm:max-w-[280px] max-h-64 overflow-y-auto rounded-poster border border-border-active bg-surface p-1 shadow-lg motion-safe:animate-pop focus:outline-none ${alignmentClasses}`}
         >
           {options.map((option) => {
             const isSelected = String(option.value) === String(selectedValue);
@@ -128,10 +128,10 @@ export function CustomDropdown({
                     handleSelectOption(option.value);
                   }
                 }}
-                className={`flex items-center justify-between rounded-lg px-2.5 py-2 text-xs cursor-pointer transition-colors ${
+                className={`flex items-center justify-between rounded-poster px-3 py-2 text-sm cursor-pointer transition-colors ${
                   isSelected
-                    ? "bg-accent/15 text-accent font-semibold"
-                    : "text-zinc-200 hover:bg-surface-hover hover:text-white"
+                    ? "bg-surface-active text-accent font-semibold"
+                    : "text-foreground hover:bg-surface-hover"
                 }`}
               >
                 <div className="flex items-center gap-2 truncate">
@@ -140,7 +140,7 @@ export function CustomDropdown({
                 </div>
 
                 {option.badge && (
-                  <span className="ml-2 shrink-0 rounded bg-surface-active px-1.5 py-0.5 text-[10px] text-zinc-400 border border-border/50">
+                  <span className="ml-2 shrink-0 rounded-poster bg-surface-active px-1.5 py-0.5 text-xs text-muted border border-border">
                     {option.badge}
                   </span>
                 )}

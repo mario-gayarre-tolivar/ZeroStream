@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, X, Loader2, Star, Film, Tv, Sparkles, ChevronRight } from "lucide-react";
+import { Search, X, Loader2, Star, Film, Tv, Clapperboard, ChevronRight } from "lucide-react";
 import { MediaItem } from "@/types";
 
 interface LiveSearchProps {
@@ -106,8 +106,8 @@ export function LiveSearch({ onSelect, isMobile = false }: LiveSearchProps) {
     if (!items || items.length === 0) return null;
 
     return (
-      <div className="border-b border-border/60 py-2 last:border-b-0">
-        <div className="flex items-center justify-between px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-zinc-400">
+      <div className="border-b border-border py-2 last:border-b-0">
+        <div className="flex items-center justify-between px-3 py-1.5 text-sm font-semibold text-muted">
           <div className="flex items-center gap-1.5">
             {icon}
             <span>{title}</span>
@@ -115,7 +115,7 @@ export function LiveSearch({ onSelect, isMobile = false }: LiveSearchProps) {
           <Link
             href={`${categoryUrl}?q=${encodeURIComponent(query.trim())}`}
             onClick={handleItemClick}
-            className="flex items-center gap-0.5 text-[11px] font-normal text-accent hover:underline normal-case"
+            className="flex items-center gap-0.5 text-xs font-normal text-accent hover:underline"
           >
             Ver más <ChevronRight className="h-3 w-3" />
           </Link>
@@ -127,9 +127,9 @@ export function LiveSearch({ onSelect, isMobile = false }: LiveSearchProps) {
               key={`${item.type}-${item.id}`}
               href={`/ver/${item.type}/${item.id}`}
               onClick={handleItemClick}
-              className="flex items-center gap-3 rounded px-3 py-1.5 transition-colors hover:bg-surface-hover"
+              className="flex items-center gap-3 rounded-poster px-3 py-1.5 transition-colors hover:bg-surface-hover"
             >
-              <div className="relative h-10 w-7 shrink-0 overflow-hidden rounded bg-surface-active">
+              <div className="relative h-10 w-7 shrink-0 overflow-hidden rounded-poster bg-surface-active">
                 {item.posterPath ? (
                   <Image
                     src={item.posterPath}
@@ -139,23 +139,23 @@ export function LiveSearch({ onSelect, isMobile = false }: LiveSearchProps) {
                     className="object-cover"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-[8px] text-zinc-500">
+                  <div className="flex h-full w-full items-center justify-center text-xs text-faint">
                     N/A
                   </div>
                 )}
               </div>
 
               <div className="flex flex-1 flex-col overflow-hidden">
-                <span className="truncate text-xs font-medium text-zinc-200">
+                <span className="truncate text-sm font-medium text-foreground">
                   {item.title}
                 </span>
-                <span className="text-[11px] text-zinc-500">
+                <span className="text-xs text-faint">
                   {item.releaseDate ? item.releaseDate.slice(0, 4) : "—"}
                 </span>
               </div>
 
               {item.voteAverage > 0 && (
-                <div className="flex items-center gap-1 text-[11px] font-medium text-accent">
+                <div className="flex items-center gap-1 text-xs font-medium text-accent">
                   <Star className="h-3 w-3 fill-accent" />
                   <span>{item.voteAverage}</span>
                 </div>
@@ -179,10 +179,10 @@ export function LiveSearch({ onSelect, isMobile = false }: LiveSearchProps) {
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Buscar anime, película, serie..."
           aria-label="Buscar películas, series o anime"
-          className="w-full rounded-md border border-border bg-surface/90 py-1.5 pl-8 pr-8 text-xs text-zinc-100 placeholder-zinc-500 transition-colors focus:border-accent focus:bg-surface focus:outline-none focus:ring-1 focus:ring-accent"
+          className="w-full rounded-poster border border-border-active bg-surface py-1.5 pl-8 pr-8 text-sm text-foreground placeholder-faint transition-colors focus:border-accent focus:bg-surface focus:outline-none focus:ring-1 focus:ring-accent"
         />
 
-        <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-500" />
+        <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-faint" />
 
         {isLoading ? (
           <Loader2 className="absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 animate-spin text-accent" />
@@ -194,7 +194,7 @@ export function LiveSearch({ onSelect, isMobile = false }: LiveSearchProps) {
               setResults(null);
               setIsOpen(false);
             }}
-            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-faint hover:text-foreground"
             aria-label="Limpiar búsqueda"
           >
             <X className="h-3.5 w-3.5" />
@@ -204,16 +204,16 @@ export function LiveSearch({ onSelect, isMobile = false }: LiveSearchProps) {
 
       {/* Resultados flotantes */}
       {isOpen && results && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-1.5 max-h-[420px] overflow-y-auto rounded-lg border border-border bg-surface p-1 shadow-2xl backdrop-blur-md">
+        <div className="absolute left-0 right-0 top-full z-50 mt-1.5 max-h-[420px] overflow-y-auto rounded-poster border border-border-active bg-surface p-1 shadow-lg">
           {results.totalResults === 0 ? (
-            <div className="p-4 text-center text-xs text-zinc-400">
+            <div className="p-4 text-center text-sm text-muted">
               No se encontraron coincidencias para &ldquo;{query}&rdquo;
             </div>
           ) : (
             <>
               {renderGroup("Películas", results.movies, <Film className="h-3.5 w-3.5 text-accent" />, "/peliculas")}
               {renderGroup("Series", results.series, <Tv className="h-3.5 w-3.5 text-accent" />, "/series")}
-              {renderGroup("Anime", results.anime, <Sparkles className="h-3.5 w-3.5 text-accent" />, "/anime")}
+              {renderGroup("Anime", results.anime, <Clapperboard className="h-3.5 w-3.5 text-accent" />, "/anime")}
             </>
           )}
         </div>

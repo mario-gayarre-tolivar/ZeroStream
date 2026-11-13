@@ -168,15 +168,15 @@ export function SafePlayer({
         {/* 16:9 Sandboxed Video Player Container */}
         <div
           ref={playerContainerRef}
-          className={`relative aspect-video w-full overflow-hidden rounded-xl border border-border bg-black shadow-2xl ${
+          className={`relative aspect-video w-full overflow-hidden rounded-poster border border-border bg-black ${
             isTheaterMode ? "max-h-[82vh] my-auto" : ""
           }`}
         >
           {/* Loading Spinner Skeleton */}
           {isLoading && (
-            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/85 backdrop-blur-xs">
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/90">
               <div className="h-9 w-9 animate-spin rounded-full border-2 border-accent border-t-transparent" />
-              <p className="mt-3 text-xs text-zinc-400">Conectando con el stream externo...</p>
+              <p className="mt-3 text-sm text-muted">Conectando con el stream externo...</p>
             </div>
           )}
 
@@ -196,21 +196,21 @@ export function SafePlayer({
         </div>
 
         {/* Episode Controls & Disclaimer Footer */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-400">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-muted">
           {mediaType !== "movie" && onEpisodeChange ? (
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={handlePrevEpisode}
                 disabled={episode <= 1}
-                className="flex items-center gap-1 rounded border border-border bg-surface px-3 py-1.5 font-medium text-zinc-200 transition-colors hover:bg-surface-hover disabled:opacity-40 disabled:hover:bg-surface"
+                className="flex items-center gap-1 rounded-poster border border-border-active bg-surface px-3 py-1.5 font-medium text-foreground transition-colors hover:bg-surface-hover disabled:opacity-40 disabled:hover:bg-surface"
                 title="Episodio Anterior (Tecla P)"
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                 Episodio Anterior
               </button>
 
-              <span className="px-2 font-semibold text-white">
+              <span className="px-2 font-semibold text-foreground">
                 Capítulo {episode} {totalEpisodesInSeason ? `de ${totalEpisodesInSeason}` : ""}
               </span>
 
@@ -218,11 +218,11 @@ export function SafePlayer({
                 type="button"
                 onClick={handleNextEpisode}
                 disabled={Boolean(totalEpisodesInSeason && episode >= totalEpisodesInSeason)}
-                className="flex items-center gap-1 rounded border border-border bg-surface px-3 py-1.5 font-medium text-zinc-200 transition-colors hover:bg-surface-hover disabled:opacity-40 disabled:hover:bg-surface"
+                className="flex items-center gap-1 rounded-poster border border-border-active bg-surface px-3 py-1.5 font-medium text-foreground transition-colors hover:bg-surface-hover disabled:opacity-40 disabled:hover:bg-surface"
                 title="Siguiente Episodio (Tecla N)"
               >
                 Siguiente Episodio
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
           ) : (
@@ -230,8 +230,8 @@ export function SafePlayer({
           )}
 
           {/* Safe notice */}
-          <div className="flex items-center gap-1.5 text-zinc-400">
-            <ShieldAlert className="h-3.5 w-3.5 text-amber-500/80" />
+          <div className="flex items-center gap-1.5 text-muted">
+            <ShieldAlert className="h-3.5 w-3.5 text-accent" aria-hidden="true" />
             <span>Streaming seguro y directo. Presiona &apos;T&apos; para modo cine o &apos;F&apos; para pantalla completa.</span>
           </div>
         </div>
@@ -240,68 +240,58 @@ export function SafePlayer({
       {/* Modal de Atajos de Teclado */}
       {showShortcutsModal && (
         <div
-          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 p-4"
           onClick={() => setShowShortcutsModal(false)}
         >
           <div
-            className="w-full max-w-sm rounded-xl border border-border bg-surface p-6 shadow-2xl space-y-4"
+            className="w-full max-w-sm rounded-poster border border-border-active bg-surface p-6 shadow-xl space-y-4"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <div className="flex items-center gap-2 font-semibold text-white text-sm">
-                <Keyboard className="h-4 w-4 text-accent" />
+              <div className="flex items-center gap-2 font-semibold text-foreground text-sm">
+                <Keyboard className="h-4 w-4 text-accent" aria-hidden="true" />
                 <span>Atajos de teclado</span>
               </div>
               <button
                 type="button"
                 onClick={() => setShowShortcutsModal(false)}
-                className="text-zinc-400 hover:text-white"
+                className="text-muted hover:text-foreground"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
 
-            <div className="space-y-2.5 text-xs text-zinc-300">
+            <div className="space-y-2.5 text-sm text-foreground">
               <div className="flex items-center justify-between">
                 <span>Modo Cine / Teatro</span>
-                <kbd className="rounded border border-border bg-surface-active px-2 py-0.5 font-mono text-[11px] text-accent">
-                  T
-                </kbd>
+                <kbd className="kbd">T</kbd>
               </div>
               <div className="flex items-center justify-between">
                 <span>Pantalla Completa</span>
-                <kbd className="rounded border border-border bg-surface-active px-2 py-0.5 font-mono text-[11px] text-accent">
-                  F
-                </kbd>
+                <kbd className="kbd">F</kbd>
               </div>
               {mediaType !== "movie" && (
                 <>
                   <div className="flex items-center justify-between">
                     <span>Siguiente Capítulo</span>
-                    <kbd className="rounded border border-border bg-surface-active px-2 py-0.5 font-mono text-[11px] text-accent">
-                      N
-                    </kbd>
+                    <kbd className="kbd">N</kbd>
                   </div>
                   <div className="flex items-center justify-between">
                     <span>Capítulo Anterior</span>
-                    <kbd className="rounded border border-border bg-surface-active px-2 py-0.5 font-mono text-[11px] text-accent">
-                      P
-                    </kbd>
+                    <kbd className="kbd">P</kbd>
                   </div>
                 </>
               )}
               <div className="flex items-center justify-between">
                 <span>Salir de Modo Cine</span>
-                <kbd className="rounded border border-border bg-surface-active px-2 py-0.5 font-mono text-[11px] text-accent">
-                  ESC
-                </kbd>
+                <kbd className="kbd">ESC</kbd>
               </div>
             </div>
 
             <button
               type="button"
               onClick={() => setShowShortcutsModal(false)}
-              className="w-full rounded bg-accent py-2 text-xs font-semibold text-background hover:bg-accent-hover transition-colors"
+              className="w-full rounded-poster bg-accent py-2 text-sm font-semibold text-accent-ink hover:bg-accent-hover transition-colors"
             >
               Cerrar
             </button>

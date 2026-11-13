@@ -1,7 +1,7 @@
 import { getCachedCatalog } from "@/services/catalog-cache";
 import { FilterBar } from "@/components/media/FilterBar";
 import { LoadMoreCatalog } from "@/components/media/LoadMoreCatalog";
-import { Tv, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 
 export const revalidate = 3600;
 
@@ -31,15 +31,12 @@ export default async function SeriesPage({ searchParams }: SeriesPageProps) {
   const { data: series } = await getCachedCatalog("tv", currentPage, query, genre);
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-2">
-          <Tv className="h-5 w-5 text-accent" />
-          <h1 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
-            Catálogo de series
-          </h1>
-        </div>
-        <p className="text-xs text-zinc-400">
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-1.5">
+        <h1 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          Catálogo de series
+        </h1>
+        <p className="text-sm text-muted">
           Temporadas completas y episodios organizados con carga dinámica y paginación rápida.
         </p>
       </div>
@@ -47,9 +44,9 @@ export default async function SeriesPage({ searchParams }: SeriesPageProps) {
       <FilterBar genres={SERIES_GENRES} currentGenre={genre} />
 
       {series.length === 0 ? (
-        <div className="flex min-h-[220px] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface/30 p-8 text-center">
-          <AlertCircle className="mb-3 h-7 w-7 text-zinc-500" />
-          <p className="max-w-md text-xs text-zinc-400">
+        <div className="flex min-h-[220px] flex-col items-center justify-center rounded-poster border border-dashed border-border-active bg-surface p-8 text-center">
+          <AlertCircle className="mb-3 h-8 w-8 text-faint" aria-hidden="true" />
+          <p className="max-w-md text-sm text-muted">
             No se encontraron series para los filtros seleccionados.
           </p>
         </div>

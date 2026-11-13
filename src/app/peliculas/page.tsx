@@ -1,7 +1,7 @@
 import { getCachedCatalog } from "@/services/catalog-cache";
 import { FilterBar } from "@/components/media/FilterBar";
 import { LoadMoreCatalog } from "@/components/media/LoadMoreCatalog";
-import { Film, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 
 export const revalidate = 3600;
 
@@ -31,15 +31,12 @@ export default async function MoviesPage({ searchParams }: MoviesPageProps) {
   const { data: movies } = await getCachedCatalog("movie", currentPage, query, genre);
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-2">
-          <Film className="h-5 w-5 text-accent" />
-          <h1 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
-            Catálogo de películas
-          </h1>
-        </div>
-        <p className="text-xs text-zinc-400">
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-1.5">
+        <h1 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          Catálogo de películas
+        </h1>
+        <p className="text-sm text-muted">
           Explora los títulos y estrenos más valorados del cine mundial con carga rápida y paginación continua.
         </p>
       </div>
@@ -47,9 +44,9 @@ export default async function MoviesPage({ searchParams }: MoviesPageProps) {
       <FilterBar genres={MOVIE_GENRES} currentGenre={genre} />
 
       {movies.length === 0 ? (
-        <div className="flex min-h-[220px] flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface/30 p-8 text-center">
-          <AlertCircle className="mb-3 h-7 w-7 text-zinc-500" />
-          <p className="max-w-md text-xs text-zinc-400">
+        <div className="flex min-h-[220px] flex-col items-center justify-center rounded-poster border border-dashed border-border-active bg-surface p-8 text-center">
+          <AlertCircle className="mb-3 h-8 w-8 text-faint" aria-hidden="true" />
+          <p className="max-w-md text-sm text-muted">
             No se encontraron películas para los filtros seleccionados.
           </p>
         </div>

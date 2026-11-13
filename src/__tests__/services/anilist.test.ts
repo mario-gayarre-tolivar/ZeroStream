@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { getTrendingAnime, getAnimeDetail } from "@/services/anilist";
+import { getTrendingAnime, getAnimeDetail, searchAnimeTmdbId } from "@/services/anilist";
 
 describe("Servicio AniList GraphQL y Fallbacks", () => {
   beforeEach(() => {
@@ -97,11 +97,11 @@ describe("Servicio AniList GraphQL y Fallbacks", () => {
     expect(detail.id).toBe(16498);
     expect(detail.title).toBe("Shingeki no Kyojin");
     expect(detail.type).toBe("anime");
-    expect(detail.seasons.length).toBeGreaterThan(0);
-    expect(detail.seasons[0].episodes.length).toBe(detail.totalEpisodes);
+    expect(detail.seasons?.length).toBeGreaterThan(0);
+    expect(detail.seasons?.[0]?.episodes?.length).toBe(detail.totalEpisodes);
   });
 
-  it("debe calcular el número total de episodios emitidos a partir de nextAiringEpisode cuando episodes es null (animes continuos como One Piece)", async () => {
+  it("debe calcular el número total de episodios emitidos a partir de nextAiringEpisode cuando episodes es null", async () => {
     const mockOnePieceResponse = {
       data: {
         Media: {
@@ -111,20 +111,20 @@ describe("Servicio AniList GraphQL y Fallbacks", () => {
             english: "ONE PIECE",
             native: "ワンピース",
           },
-          description: "Gol D. Roger fue conocido como el 'Rey de los Piratas'...",
+          description: "Gol D. Roger fue conocido...",
           coverImage: {
             extraLarge: "https://example.com/onepiece.jpg",
             large: "https://example.com/onepiece.jpg",
           },
           bannerImage: "https://example.com/op-banner.jpg",
           averageScore: 88,
-          episodes: null, // Null en AniList para series continuas
+          episodes: null,
           seasonYear: 1999,
           status: "RELEASING",
           genres: ["Action", "Adventure", "Comedy"],
           duration: 24,
           nextAiringEpisode: {
-            episode: 1125, // El próximo capítulo en emitirse es el 1125
+            episode: 1125,
           },
           trailer: null,
         },
@@ -138,10 +138,77 @@ describe("Servicio AniList GraphQL y Fallbacks", () => {
 
     const detail = await getAnimeDetail(21);
     expect(detail.id).toBe(21);
-    // Debe calcular 1125 - 1 = 1124 episodios emitidos, no caer en el falso límite de 12
     expect(detail.totalEpisodes).toBe(1124);
-    expect(detail.seasons[0].episodeCount).toBe(1124);
-    expect(detail.seasons[0].episodes.length).toBe(1124);
-    expect(detail.seasons[0].episodes[1123].episodeNumber).toBe(1124);
+    expect(detail.seasons?.[0]?.episodeCount).toBe(1124);
+    expect(detail.seasons?.[0]?.episodes?.length).toBe(1124);
+    expect(detail.seasons?.[0]?.episodes?.[1123]?.episodeNumber).toBe(1124);
+  });
+
+  it("searchAnimeTmdbId debe resolver el ID de TMDB mediante búsqueda por título", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        results: [
+          {
+            id: 220542,
+            name: "Los diarios de la boticaria",
+            original_name: "薬屋のひとりごと",
+            first_air_date: "2023-10-22",
+          },
+        ],
+      }),
+    } as Response);
+
+    const tmdbId = await searchAnimeTmdbId("The Apothecary Diaries", "2023");
+    expect(tmdbId).toBe("220542");
+  });
+
+  it("getAnimeDetail debe asociar el tmdbId correcto (Hunter x Hunter 2011 -> 46298)", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+    } as Response);
+
+    const detail = await getAnimeDetail(11061);
+    expect(detail.tmdbId).toBe("46298");
+  });
+
+  it("getAnimeDetail debe extraer y asignar malId desde AniList GraphQL o fallbacks", async () => {
+    const mockResponse = {
+      data: {
+        Media: {
+          id: 161645,
+          idMal: 54492,
+          title: {
+            romaji: "Kusuriya no Hitorigoto",
+            english: "The Apothecary Diaries",
+            native: "薬屋のひとりごと",
+          },
+          description: "Maomao...",
+          coverImage: {
+            extraLarge: "https://example.com/cover.jpg",
+            large: "https://example.com/cover.jpg",
+          },
+          bannerImage: "https://example.com/banner.jpg",
+          averageScore: 88,
+          episodes: 24,
+          seasonYear: 2023,
+          status: "FINISHED",
+          genres: ["Drama", "Mystery"],
+          duration: 24,
+          nextAiringEpisode: null,
+          trailer: null,
+        },
+      },
+    };
+
+    vi.spyOn(global, "fetch").mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockResponse,
+    } as Response);
+
+    const detail = await getAnimeDetail(161645);
+    expect(detail.id).toBe(161645);
+    expect(detail.malId).toBe(54492);
   });
 });

@@ -1,7 +1,50 @@
 import { MediaDetail, MediaItem } from "@/types";
 import { AniListPageResponseSchema } from "./schemas";
+import { resolveTmdbId } from "./embeds";
 
 const ANILIST_API_URL = "https://graphql.anilist.co";
+const TMDB_API_URL = "https://api.themoviedb.org/3";
+const API_KEY = process.env.TMDB_API_KEY || process.env.NEXT_PUBLIC_TMDB_API_KEY || "";
+
+const tmdbAnimeCache = new Map<string, string>();
+
+/**
+ * Busca de forma dinámica el TMDB ID de un anime por su título y año.
+ */
+export async function searchAnimeTmdbId(
+  title: string,
+  year?: string | number
+): Promise<string | null> {
+  const cleanTitle = title.replace(/\([^)]*\)/g, "").trim();
+  const cacheKey = `${cleanTitle.toLowerCase()}_${year || ""}`;
+
+  if (tmdbAnimeCache.has(cacheKey)) {
+    return tmdbAnimeCache.get(cacheKey) || null;
+  }
+
+  try {
+    let endpoint = `${TMDB_API_URL}/search/tv?api_key=${API_KEY}&language=es-ES&query=${encodeURIComponent(
+      cleanTitle
+    )}`;
+    if (year) {
+      endpoint += `&first_air_date_year=${year}`;
+    }
+
+    const res = await fetch(endpoint);
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    const first = data?.results?.[0];
+    if (first?.id) {
+      const idStr = String(first.id);
+      tmdbAnimeCache.set(cacheKey, idStr);
+      return idStr;
+    }
+  } catch {
+    // Falla silenciosa si no hay red o cuota
+  }
+  return null;
+}
 
 const POPULAR_ANIME_QUERY = `
 query ($page: Int, $perPage: Int, $search: String, $genre: String) {
@@ -256,9 +299,21 @@ export async function getAnimeDetail(id: string | number): Promise<MediaDetail> 
           overview: `Episodio ${i + 1} de ${m.title.english || m.title.romaji}`,
         }));
 
+        const resolvedTitle = m.title.english || m.title.romaji || m.title.native;
+        let tmdbId: string | undefined = undefined;
+        const staticMapped = resolveTmdbId("anime", m.id);
+        if (staticMapped && staticMapped !== String(m.id)) {
+          tmdbId = staticMapped;
+        } else {
+          const searched = await searchAnimeTmdbId(resolvedTitle, m.seasonYear);
+          if (searched) {
+            tmdbId = searched;
+          }
+        }
+
         return {
           id: m.id,
-          title: m.title.english || m.title.romaji || m.title.native,
+          title: resolvedTitle,
           originalTitle: m.title.native || m.title.romaji,
           type: "anime",
           overview: cleanOverview(m.description),
@@ -271,6 +326,8 @@ export async function getAnimeDetail(id: string | number): Promise<MediaDetail> 
           status: m.status,
           duration: m.duration ? `${m.duration} min` : "24 min",
           trailerYoutubeId: m.trailer?.site === "youtube" ? m.trailer?.id : undefined,
+          tmdbId,
+          malId: m.idMal || undefined,
           seasons: [
             {
               seasonNumber: 1,
@@ -289,8 +346,17 @@ export async function getAnimeDetail(id: string | number): Promise<MediaDetail> 
   // Fallback si no hay conexión o no existe
   const found = FALLBACK_ANIME.find((a) => String(a.id) === String(id)) || FALLBACK_ANIME[0];
   const totalEp = found.totalEpisodes || 12;
+  const staticFallbackMapped = resolveTmdbId("anime", numericId);
+  const fallbackTmdbId =
+    staticFallbackMapped && staticFallbackMapped !== String(numericId)
+      ? staticFallbackMapped
+      : undefined;
+
   return {
     ...found,
+    id: numericId || found.id,
+    tmdbId: fallbackTmdbId,
+    malId: found.malId || found.id,
     seasons: [
       {
         seasonNumber: 1,

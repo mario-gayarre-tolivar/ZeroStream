@@ -42,7 +42,7 @@ export function Pagination({ currentPage, hasMore = true }: PaginationProps) {
       <button
         onClick={() => handlePageChange(currentPage - 1)}
         disabled={currentPage <= 1 || isPending}
-        className="flex items-center gap-1 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-slate-300 transition-colors hover:bg-surface-hover hover:text-white disabled:pointer-events-none disabled:opacity-40"
+        className="flex items-center gap-1 rounded-poster border border-border-active bg-surface px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-surface-hover disabled:pointer-events-none disabled:opacity-40"
         aria-label="Página anterior"
       >
         <ChevronLeft className="h-4 w-4" />
@@ -55,11 +55,11 @@ export function Pagination({ currentPage, hasMore = true }: PaginationProps) {
           <>
             <button
               onClick={() => handlePageChange(1)}
-              className="h-8 w-8 rounded-lg border border-border bg-surface text-xs font-medium text-slate-300 hover:bg-surface-hover hover:text-white"
+              className="h-9 w-9 rounded-poster border border-border-active bg-surface text-sm font-medium text-foreground tabular-nums hover:bg-surface-hover"
             >
               1
             </button>
-            {startPage > 2 && <span className="px-1 text-slate-600">...</span>}
+            {startPage > 2 && <span className="px-1 text-faint">...</span>}
           </>
         )}
 
@@ -70,10 +70,10 @@ export function Pagination({ currentPage, hasMore = true }: PaginationProps) {
               key={p}
               onClick={() => handlePageChange(p)}
               disabled={isPending}
-              className={`h-8 w-8 rounded-lg text-xs font-semibold transition-colors ${
+              className={`h-9 w-9 rounded-poster text-sm font-semibold tabular-nums transition-colors ${
                 isCurrent
-                  ? "bg-accent text-white shadow-sm"
-                  : "border border-border bg-surface text-slate-300 hover:bg-surface-hover hover:text-white"
+                  ? "bg-accent text-accent-ink"
+                  : "border border-border-active bg-surface text-foreground hover:bg-surface-hover"
               }`}
               aria-current={isCurrent ? "page" : undefined}
             >
@@ -87,7 +87,7 @@ export function Pagination({ currentPage, hasMore = true }: PaginationProps) {
       <button
         onClick={() => handlePageChange(currentPage + 1)}
         disabled={!hasMore || isPending}
-        className="flex items-center gap-1 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-slate-300 transition-colors hover:bg-surface-hover hover:text-white disabled:pointer-events-none disabled:opacity-40"
+        className="flex items-center gap-1 rounded-poster border border-border-active bg-surface px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-surface-hover disabled:pointer-events-none disabled:opacity-40"
         aria-label="Página siguiente"
       >
         <span className="hidden sm:inline">Siguiente</span>

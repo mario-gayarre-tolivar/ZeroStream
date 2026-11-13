@@ -15,6 +15,8 @@ export interface MediaItem {
   totalSeasons?: number;
   status?: string;
   duration?: string | number;
+  tmdbId?: string | number;
+  malId?: string | number;
 }
 
 export interface Episode {
