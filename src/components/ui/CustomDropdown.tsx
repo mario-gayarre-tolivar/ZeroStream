@@ -17,6 +17,7 @@ export interface CustomDropdownProps {
   onSelect: (value: number | string) => void;
   className?: string;
   ariaLabel?: string;
+  align?: "left" | "right" | "auto";
 }
 
 export function CustomDropdown({
@@ -27,6 +28,7 @@ export function CustomDropdown({
   onSelect,
   className = "",
   ariaLabel,
+  align = "auto",
 }: CustomDropdownProps): React.JSX.Element {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -34,6 +36,13 @@ export function CustomDropdown({
 
   const selectedOption =
     options.find((opt) => String(opt.value) === String(selectedValue)) || options[0];
+
+  const alignmentClasses =
+    align === "left"
+      ? "left-0 origin-top-left"
+      : align === "right"
+      ? "right-0 origin-top-right"
+      : "left-0 sm:left-auto sm:right-0 origin-top-left sm:origin-top-right";
 
   // Cerrar al pulsar fuera del componente
   useEffect(() => {
@@ -102,7 +111,7 @@ export function CustomDropdown({
           role="listbox"
           tabIndex={-1}
           aria-label={ariaLabel || label}
-          className="absolute right-0 z-50 mt-1.5 min-w-[180px] max-w-[280px] max-h-64 overflow-y-auto rounded-xl border border-border bg-surface/95 p-1.5 shadow-2xl backdrop-blur-md animate-in fade-in zoom-in-95 duration-150 ease-out origin-top-right focus:outline-none"
+          className={`absolute z-50 mt-1.5 min-w-[180px] max-w-[calc(100vw-2.5rem)] sm:max-w-[280px] max-h-64 overflow-y-auto rounded-xl border border-border bg-surface/95 p-1.5 shadow-2xl backdrop-blur-md animate-in fade-in zoom-in-95 duration-150 ease-out focus:outline-none ${alignmentClasses}`}
         >
           {options.map((option) => {
             const isSelected = String(option.value) === String(selectedValue);
