@@ -1,65 +1,89 @@
 {
-  "version": 1,
+  "version": 2,
   "skills": {
+    "clean-code": {
+      "source": "wondelai/skills",
+      "sourceType": "github",
+      "skillPath": "clean-code/SKILL.md",
+      "computedHash": "05c09cd9475e281ef08ffcc11571c50e8cb5fabfa8d6bcdb96ab2d0dbb73a61e"
+    },
     "graphify": {
       "source": "graphify-labs/graphify",
       "sourceType": "github",
       "skillPath": "graphify/SKILL.md",
-      "computedHash": "60e20979626cbedd5e7a427ad4d94137c83fd4da31e688458877f18f84f3aee9"
+      "computedHash": "ce723af57e14652e12453e08c8e2f686a3e2fc05ea626888977e28303413493e"
+    },
+    "improve-codebase-architecture": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
+      "computedHash": "f0820b18426a7d9a6c823a890988ba0ac70bf0fd596d30d7ef07c88558728c23"
     },
     "keyboard-shortcuts-patterns": {
       "source": "swiggityswerve/ux-toolkit",
       "sourceType": "github",
       "skillPath": "skills/keyboard-shortcuts-patterns/SKILL.md",
-      "computedHash": "aa4dd333d67caa08ce52479697a6c13c6ce75f7f4de2e820b20d239ad0caf6a4"
+      "computedHash": "4e9110bb68dbb2dd0fa8f445d73963396988be58ac765722ad4cb74bae68ef64"
     },
     "nextjs-app-router-patterns": {
       "source": "wshobson/agents",
       "sourceType": "github",
       "skillPath": "plugins/frontend-mobile-development/skills/nextjs-app-router-patterns/SKILL.md",
-      "computedHash": "3a46e9093baecb3a85819529ce05006f817663f48d9e872868c32ae6049c0d5c"
+      "computedHash": "39b84480d3a62355fd1199173dc70b97efe1daf6dbfae560cc7b85e127934a98"
     },
     "nextjs-data-fetching": {
       "source": "giuseppe-trisciuoglio/developer-kit",
       "sourceType": "github",
       "skillPath": "plugins/developer-kit-typescript/skills/nextjs-data-fetching/SKILL.md",
-      "computedHash": "868240fba1ebd9f9aba3fa9761327aa587f693aeffd88246bce34e1bccfe1958"
+      "computedHash": "3cd04af9de66e5b4170ba389ac5ddedf9b7b2072f182e2917c333f6a612a6e79"
     },
     "nextjs-seo": {
       "source": "laguagu/claude-code-nextjs-skills",
       "sourceType": "github",
       "skillPath": "skills/nextjs-seo/SKILL.md",
-      "computedHash": "f0179122dd450fb7d2fe1c8332a8d33300edc7ad648b4c2fa8bc763de023ed3a"
+      "computedHash": "5cc7b44bbf64b00cfc106b9a4eefe7c8bf6385b9ca529dadf96b6dae92ffc4f5"
     },
     "react-testing": {
       "source": "affaan-m/ecc",
       "sourceType": "github",
       "skillPath": "skills/react-testing/SKILL.md",
-      "computedHash": "59bd15f26f018d6629557108f936ab691af887508ae71b9d339855e49e337012"
+      "computedHash": "714afd851c8c43fe67ee327e28adb5e3b75caf38540abeef05e3ecb6a812c180"
+    },
+    "safe-refactor": {
+      "source": "JuliusBrussee/caveman",
+      "sourceType": "github",
+      "skillPath": "skills/safe-refactor/SKILL.md",
+      "computedHash": "709db1dfde3fe3baa362ecdb3f1f3c0be27587358242737dfa4ca82a23744269"
     },
     "search": {
       "source": "aladicf/better-web-ui",
       "sourceType": "github",
       "skillPath": "skills/search/SKILL.md",
-      "computedHash": "b0cc57f4e2044e86c791d8119ea00b135d314591390786c9da2940a83f810d6a"
+      "computedHash": "a948d8178dc44de03781f5ed4a7971f8586e23ddbeb695cab5445d6a0adf06ed"
     },
     "upstash-ratelimit-js": {
       "source": "upstash/skills",
       "sourceType": "github",
       "skillPath": "skills/upstash-ratelimit-js/SKILL.md",
-      "computedHash": "91f5df89a4d6085068fe6297f2387eacbd38e49f14fae7718606cc2c0d3b9673"
+      "computedHash": "a8d5d7f4433956518671537979c69dc8c3cc8c06ff3a523c0d7cec8f7a240551"
+    },
+    "vercel-composition-patterns": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/composition-patterns/SKILL.md",
+      "computedHash": "f711ed8b16162eaa712abbcdbbae6c926f86c57e60127735fecc3ad0dd85b3fa"
     },
     "vitest": {
       "source": "antfu/skills",
       "sourceType": "github",
       "skillPath": "skills/vitest/SKILL.md",
-      "computedHash": "b26b7f8d10e860e944e0334c003207771707c4906514cb96c971faae13fba875"
+      "computedHash": "bd95e41d66d76da9008893c9bc48c30f0a68f352cd2b00017767f5e4c129501d"
     },
     "writing-unit-tests": {
       "source": "riekelt/principal-engineer",
       "sourceType": "github",
       "skillPath": "plugins/principal-engineer/skills/writing-unit-tests/SKILL.md",
-      "computedHash": "3b87b422eaea2e84fb15de7e2b7d9bf5abebd4a60a2049ae285d22f69da254ce"
+      "computedHash": "742ffe43b4e309ea5a85b66680ee9d194ba020405b9f6d3cf5a75a7a3f60b165"
     }
   }
 }
