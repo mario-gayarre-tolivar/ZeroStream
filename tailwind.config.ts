@@ -9,22 +9,22 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#0b0c10",
+        background: "#090a0d",
         surface: {
-          DEFAULT: "#13151b",
-          hover: "#1a1d26",
-          active: "#212530",
+          DEFAULT: "#111318",
+          hover: "#181b22",
+          active: "#20242e",
         },
         border: {
-          DEFAULT: "#20232e",
-          subtle: "#171a23",
-          active: "#373d4d",
+          DEFAULT: "#1f232d",
+          subtle: "#151820",
+          active: "#323846",
         },
         accent: {
-          DEFAULT: "#6366f1",
-          hover: "#4f46e5",
-          cyan: "#06b6d4",
-          crimson: "#f43f5e",
+          DEFAULT: "#e5a93c",
+          hover: "#d49428",
+          subtle: "rgba(229, 169, 60, 0.12)",
+          crimson: "#e11d48",
         },
       },
       fontFamily: {

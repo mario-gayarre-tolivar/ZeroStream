@@ -80,7 +80,7 @@
 - [x] **Paso 1:** Integrar validadores de esquema seguros (`zod` o funciones de guardia de tipos puras) para sanear respuestas externas antes de transformarlas a `MediaItem`.
 - [x] **Paso 2:** Eliminar transformaciones duplicadas y asignaciones de memoria redundantes en bucles de mapeo.
 - [x] **Paso 3:** Comprobar con `npm test` y `npm run build`.
-- [ ] **Paso 4:** Commit del cambio.
+- [x] **Paso 4:** Commit del cambio.
 
 ---
 
@@ -93,12 +93,12 @@
 - Modify: `src/components/layout/Header.tsx`
 - Modify: `src/components/layout/Footer.tsx`
 
-- [ ] **Paso 1:** Definir la identidad visual en `tailwind.config.ts` y `globals.css`:
+- [x] **Paso 1:** Definir la identidad visual en `tailwind.config.ts` y `globals.css`:
   - Paleta sobria y cinematográfica (tonos carbón profundo, grafito y acentos intencionales de alto contraste sin caer en luces de neón genéricas).
   - Escala tipográfica refinada con ritmo vertical claro y espaciado generoso.
-- [ ] **Paso 2:** Rediseñar `Header.tsx` y `Footer.tsx` eliminando bordes innecesarios, aplicando navegación minimalista con enlaces claros y accesibilidad de teclado (`focus-visible`).
-- [ ] **Paso 3:** Ejecutar `npm test` y `npm run build`.
-- [x] **Paso 4:** Commit del cambio.
+- [x] **Paso 2:** Rediseñar `Header.tsx` y `Footer.tsx` eliminando bordes innecesarios, aplicando navegación minimalista con enlaces claros y accesibilidad de teclado (`focus-visible`).
+- [x] **Paso 3:** Ejecutar `npm test` y `npm run build`.
+- [ ] **Paso 4:** Commit del cambio.
 
 ### Task 2.2: Desacoplamiento y Composición del Reproductor (`src/components/player/`)
 **Files:**
