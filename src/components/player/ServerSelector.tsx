@@ -44,19 +44,20 @@ export function PlayerControlBar({
       </div>
 
       {/* Servidores tabs */}
-      <div className="flex flex-wrap items-center gap-1.5">
+      <div className="flex flex-wrap items-center gap-1.5 flex-1 min-w-0">
         {servers.map((server, idx) => (
           <button
             key={server.id || idx}
             type="button"
             onClick={() => onSelectServer(idx)}
-            className={`rounded px-3 py-1 text-xs font-medium transition-colors ${
+            className={`rounded px-2.5 py-1 text-xs font-medium transition-colors truncate max-w-[150px] sm:max-w-none ${
               activeServerIndex === idx
                 ? "bg-accent text-background font-semibold shadow-sm"
                 : "bg-surface-active text-zinc-300 hover:bg-surface-hover hover:text-white"
             }`}
           >
-            {server.name} ({server.quality})
+            <span>{server.name}</span>{" "}
+            <span className="hidden sm:inline text-[11px] opacity-75">({server.quality})</span>
           </button>
         ))}
       </div>

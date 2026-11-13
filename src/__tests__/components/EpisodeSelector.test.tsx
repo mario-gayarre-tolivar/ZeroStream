@@ -44,7 +44,7 @@ describe("<EpisodeSelector /> — Selector de Temporadas y Capítulos", () => {
     },
   ];
 
-  it("debe renderizar los episodios de la temporada activa", () => {
+  it("debe mostrar un banner con el capítulo y título del episodio seleccionado encima del grid", () => {
     render(
       <EpisodeSelector
         seasons={mockSeasons}
@@ -55,11 +55,27 @@ describe("<EpisodeSelector /> — Selector de Temporadas y Capítulos", () => {
       />
     );
 
-    expect(screen.getByText("Winter Is Coming")).toBeInTheDocument();
-    expect(screen.getByText("The Kingsroad")).toBeInTheDocument();
+    expect(screen.getByText(/Winter Is Coming/i)).toBeInTheDocument();
+    expect(screen.getByText(/Capítulo 1/i)).toBeInTheDocument();
   });
 
-  it("debe llamar a onSelectEpisode al pulsar en un capítulo", () => {
+  it("debe mostrar únicamente el número en cada botón de episodio dentro del grid compacto", () => {
+    render(
+      <EpisodeSelector
+        seasons={mockSeasons}
+        currentSeason={1}
+        currentEpisode={1}
+        onSelectEpisode={vi.fn()}
+        onSelectSeason={vi.fn()}
+      />
+    );
+
+    const epBtn1 = screen.getByRole("button", { name: /^1$/ });
+    expect(epBtn1).toBeInTheDocument();
+    expect(epBtn1.textContent?.trim()).toBe("1");
+  });
+
+  it("debe llamar a onSelectEpisode al pulsar en el botón numérico de un capítulo", () => {
     const handleSelectEpisode = vi.fn();
 
     render(
@@ -72,13 +88,13 @@ describe("<EpisodeSelector /> — Selector de Temporadas y Capítulos", () => {
       />
     );
 
-    const episodeTwo = screen.getByText("The Kingsroad");
-    fireEvent.click(episodeTwo);
+    const episodeTwoBtn = screen.getByRole("button", { name: /^2$/ });
+    fireEvent.click(episodeTwoBtn);
 
     expect(handleSelectEpisode).toHaveBeenCalledWith(1, 2);
   });
 
-  it("debe llamar a onSelectSeason al cambiar de temporada", () => {
+  it("debe renderizar un desplegable para seleccionar temporada y llamar a onSelectSeason al cambiar", () => {
     const handleSelectSeason = vi.fn();
 
     render(
@@ -91,9 +107,10 @@ describe("<EpisodeSelector /> — Selector de Temporadas y Capítulos", () => {
       />
     );
 
-    const seasonTwoBtn = screen.getByText("Temporada 2");
-    fireEvent.click(seasonTwoBtn);
+    const seasonSelect = screen.getByRole("combobox", { name: /seleccionar temporada/i });
+    expect(seasonSelect).toBeInTheDocument();
 
+    fireEvent.change(seasonSelect, { target: { value: "2" } });
     expect(handleSelectSeason).toHaveBeenCalledWith(2);
   });
 
@@ -130,10 +147,10 @@ describe("<EpisodeSelector /> — Selector de Temporadas y Capítulos", () => {
     // Debe mostrar selector de rango/página
     expect(screen.getByRole("combobox", { name: /seleccionar rango de episodios/i })).toBeInTheDocument();
 
-    // En la página 1 (1-100), debe aparecer el episodio 1 y episodio 100, pero NO el 713
-    expect(screen.getAllByText(/Episodio 1\b/).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Episodio 100\b/).length).toBeGreaterThan(0);
-    expect(screen.queryByText(/Episodio 713\b/)).not.toBeInTheDocument();
+    // En la página 1 (1-100), debe aparecer el botón 1 y el botón 100, pero NO el 713
+    expect(screen.getByRole("button", { name: /^1$/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^100$/ })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /^713$/ })).not.toBeInTheDocument();
   });
 
   it("debe permitir saltar directamente al rango 701-800 y seleccionar el episodio 713", () => {
@@ -171,8 +188,8 @@ describe("<EpisodeSelector /> — Selector de Temporadas y Capítulos", () => {
     // Cambiar a la página 8 (Eps 701 - 800)
     fireEvent.change(select, { target: { value: "7" } }); // index 7 = page 8 (701-800)
 
-    // Ahora el botón del episodio 713 debe estar en pantalla
-    const ep713Btn = screen.getByRole("button", { name: /episodio 713/i });
+    // Ahora el botón del episodio 713 debe estar en pantalla en el grid numérico
+    const ep713Btn = screen.getByRole("button", { name: /^713$/ });
     expect(ep713Btn).toBeInTheDocument();
 
     fireEvent.click(ep713Btn);
