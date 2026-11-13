@@ -53,7 +53,7 @@
 - [x] **Paso 2:** Implementar una estructura ligera `BoundedMemoryCache` en `src/services/lru-cache.ts` con límite máximo de entradas (ej. 150 claves) y desalojo automático O(1) para erradicar fugas de memoria.
 - [x] **Paso 3:** Refactorizar `catalog-cache.ts` para usar `BoundedMemoryCache` y corregir el bug del bloque catch donde se reintentaba la misma petición fallida sin timeout.
 - [x] **Paso 4:** Ejecutar `npm test` y `npm run build` para confirmar estabilidad.
-- [ ] **Paso 5:** Commit del cambio.
+- [x] **Paso 5:** Commit del cambio.
 
 ### Task 1.3: Auditoría, Reparación y Tipado de Servidores de Streaming (`src/services/embeds.ts`)
 **Files:**
@@ -61,12 +61,12 @@
 - Modify: `src/types/index.ts`
 - Test: `src/__tests__/services/embeds.test.ts`
 
-- [ ] **Paso 1:** Actualizar tests en `embeds.test.ts` para verificar la generación de URLs de servidores activos y la diferenciación correcta de IDs para Anime vs Movies/Series.
-- [ ] **Paso 2:** Auditar proveedores de streaming en `embeds.ts`:
+- [x] **Paso 1:** Actualizar tests en `embeds.test.ts` para verificar la generación de URLs de servidores activos y la diferenciación correcta de IDs para Anime vs Movies/Series.
+- [x] **Paso 2:** Auditar proveedores de streaming en `embeds.ts`:
   - Actualizar endpoints y dominios funcionales (VidLink, Embed.su, SuperEmbed/Multiembed, 2Embed/AutoEmbed).
   - Solucionar el problema de anime: añadir soporte para mapeo o proveedores directos de anime que admitan título/temporada cuando el ID no coincida con TMDB.
   - Añadir metadatos de servidor (estado de salud, soporte de subtítulos en español y sandbox recomendado).
-- [ ] **Paso 3:** Ejecutar `npm test` y verificar que todas las opciones de servidores devuelven URLs bien formadas.
+- [x] **Paso 3:** Ejecutar `npm test` y verificar que todas las opciones de servidores devuelven URLs bien formadas.
 - [ ] **Paso 4:** Commit del cambio.
 
 ### Task 1.4: Contratos de Datos y Tipado Seguro (`src/services/tmdb.ts` y `src/services/anilist.ts`)
@@ -145,7 +145,7 @@
 - [ ] **Paso 2:** Implementar límites `<Suspense fallback={<CatalogSkeleton />}>` granulares para que la interfaz responda al instante en la primera carga.
 - [ ] **Paso 3:** Reducir la huella de `PlayerViewClient.tsx` para enviar al cliente únicamente los componentes que requieren interacción (reproductor, selector de episodios, botón de lista).
 - [ ] **Paso 4:** Ejecutar `npm run build` y verificar que el tamaño de los chunks JS ("First Load JS") se mantenga óptimo o disminuya.
-- [ ] **Paso 5:** Commit del cambio.
+- [x] **Paso 5:** Commit del cambio.
 
 ### Task 3.2: Estados de Error, Carga y Limpieza Final (`src/app/`)
 **Files:**

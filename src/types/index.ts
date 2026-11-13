@@ -45,6 +45,9 @@ export interface ServerOption {
   name: string;
   quality: string;
   url: string;
+  isRecommended?: boolean;
+  requiresAdblock?: boolean;
+  hasSpanishAudio?: boolean;
 }
 
 export interface WatchHistoryItem {
