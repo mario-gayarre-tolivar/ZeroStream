@@ -113,7 +113,7 @@
   - Desacoplar el estado de advertencia de sandbox y el iframe en bloques independientes.
 - [x] **Paso 2:** Optimizar `EpisodeSelector.tsx`: memorización de lista de episodios, renderizado eficiente con paginación por temporadas sin re-renderizar todo el árbol.
 - [x] **Paso 3:** Ejecutar tests unitarios existentes y añadir pruebas de cambio de servidor sin recarga completa.
-- [ ] **Paso 4:** Commit del cambio.
+- [x] **Paso 4:** Commit del cambio.
 
 ### Task 2.3: Refactorización de Catálogo, Tarjetas y Búsqueda (`src/components/media/` y `layout/`)
 **Files:**
@@ -124,10 +124,10 @@
 - Test: `src/__tests__/components/MediaCard.test.tsx`
 - Test: `src/__tests__/components/LiveSearch.test.tsx`
 
-- [ ] **Paso 1:** Rediseñar `MediaCard.tsx`: imagen con aspecto cinematográfico, tipografía limpia, sin efectos de hover estridentes o etiquetas repetitivas.
-- [ ] **Paso 2:** Optimizar `LiveSearch.tsx`: simplificar el hook de debounce, limpiar gestión de foco con teclado (flechas arriba/abajo y Escape) y destruir suscripciones al desmontar para no retener memoria.
-- [ ] **Paso 3:** Comprobar con `npm test` (tests de debounce y Escape) y `npm run build`.
-- [x] **Paso 4:** Commit del cambio.
+- [x] **Paso 1:** Rediseñar `MediaCard.tsx`: imagen con aspecto cinematográfico, tipografía limpia, sin efectos de hover estridentes o etiquetas repetitivas.
+- [x] **Paso 2:** Optimizar `LiveSearch.tsx`: simplificar el hook de debounce, limpiar gestión de foco con teclado (flechas arriba/abajo y Escape) y destruir suscripciones al desmontar para no retener memoria.
+- [x] **Paso 3:** Comprobar con `npm test` (tests de debounce y Escape) y `npm run build`.
+- [ ] **Paso 4:** Commit del cambio.
 
 ---
 
