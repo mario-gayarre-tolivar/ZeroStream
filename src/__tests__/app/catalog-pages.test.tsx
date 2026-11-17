@@ -3,9 +3,9 @@ import { describe, it, expect, vi } from "vitest";
 import MoviesPage from "@/app/peliculas/page";
 import SeriesPage from "@/app/series/page";
 import AnimePage from "@/app/anime/page";
-import * as catalogService from "@/services/catalog-cache";
+import * as catalogService from "@/server/catalog-cache";
 
-vi.mock("@/services/catalog-cache", () => ({
+vi.mock("@/server/catalog-cache", () => ({
   getCachedCatalog: vi.fn(),
 }));
 

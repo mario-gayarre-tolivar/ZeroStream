@@ -4,7 +4,7 @@ import ErrorBoundary from "@/app/error";
 import NotFound from "@/app/not-found";
 import MyListPage from "@/app/mi-lista/page";
 
-vi.mock("@/services/history", () => ({
+vi.mock("@/client/history", () => ({
   getFavorites: () => [],
   getWatchHistory: () => [],
 }));

@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from "vitest";
 import { Header } from "@/components/layout/Header";
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/series" }));
-vi.mock("@/hooks/useCatalogPrefetch", () => ({
+vi.mock("@/client/hooks/useCatalogPrefetch", () => ({
   useCatalogPrefetch: () => ({ prefetchCatalog: vi.fn() }),
 }));
 vi.mock("@/components/layout/LiveSearch", () => ({

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { WatchHistoryItem } from "@/types";
-import { getFavorites, getWatchHistory } from "@/services/history";
+import { getFavorites, getWatchHistory } from "@/client/history";
 import { Bookmark, Clock, Trash2 } from "lucide-react";
 
 export default function MyListPage() {

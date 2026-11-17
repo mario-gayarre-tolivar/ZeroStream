@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { POST } from "@/app/api/servers/check/route";
-import * as serverHealthModule from "@/services/server-health";
-import * as embedsModule from "@/services/embeds";
+import * as serverHealthModule from "@/server/server-health";
+import * as embedsModule from "@/shared/embeds";
 
 describe("Route Handler POST /api/servers/check", () => {
   beforeEach(() => {

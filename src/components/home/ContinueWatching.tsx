@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { WatchHistoryItem } from "@/types";
-import { getWatchHistory } from "@/services/history";
+import { getWatchHistory } from "@/client/history";
 import { Clock } from "lucide-react";
 
 export function ContinueWatching() {

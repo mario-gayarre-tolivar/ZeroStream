@@ -1,10 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ContinueWatching } from "@/components/home/ContinueWatching";
-import * as historyService from "@/services/history";
+import * as historyService from "@/client/history";
 import { WatchHistoryItem } from "@/types";
 
-vi.mock("@/services/history", () => ({
+vi.mock("@/client/history", () => ({
   getWatchHistory: vi.fn(),
 }));
 

@@ -7,14 +7,14 @@ import {
   ServerCheckResult,
   ServerCheckResponse,
 } from "@/types";
-import { saveWatchProgress } from "@/services/history";
-import { resolveAutoSelectedServers } from "@/services/server-selection";
+import { saveWatchProgress } from "@/client/history";
+import { resolveAutoSelectedServers } from "@/shared/server-selection";
 import {
   buildMediaEpisodeKey,
   getFailedServerIds,
   markServerFailed,
   clearFailedServers,
-} from "@/services/client-server-memory";
+} from "@/client/client-server-memory";
 import {
   ShieldAlert,
   ChevronLeft,

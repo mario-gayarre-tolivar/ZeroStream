@@ -5,7 +5,7 @@ import { ServerOption } from "@/types";
 import {
   getFailedServerIds,
   markServerFailed,
-} from "@/services/client-server-memory";
+} from "@/client/client-server-memory";
 
 describe("<SafePlayer /> — Reproductor Sandboxed Seguro", () => {
   const mockServers: ServerOption[] = [

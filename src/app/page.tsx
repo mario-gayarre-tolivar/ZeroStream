@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getCachedCatalog } from "@/services/catalog-cache";
+import { getCachedCatalog } from "@/server/catalog-cache";
 import { HeroBanner } from "@/components/home/HeroBanner";
 import { ContinueWatching } from "@/components/home/ContinueWatching";
 import { MediaGrid } from "@/components/media/MediaGrid";

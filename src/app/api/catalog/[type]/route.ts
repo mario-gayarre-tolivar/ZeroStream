@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MediaType } from "@/types";
-import { getCachedCatalog } from "@/services/catalog-cache";
+import { getCachedCatalog } from "@/server/catalog-cache";
 
 export const revalidate = 3600; // 1 hora ISR Edge Cache
 

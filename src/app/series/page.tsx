@@ -1,4 +1,4 @@
-import { getCachedCatalog } from "@/services/catalog-cache";
+import { getCachedCatalog } from "@/server/catalog-cache";
 import { FilterBar } from "@/components/media/FilterBar";
 import { LoadMoreCatalog } from "@/components/media/LoadMoreCatalog";
 import { AlertCircle } from "lucide-react";

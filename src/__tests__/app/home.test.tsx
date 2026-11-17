@@ -1,10 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import HomePage from "@/app/page";
-import * as catalogService from "@/services/catalog-cache";
+import * as catalogService from "@/server/catalog-cache";
 import { MediaItem } from "@/types";
 
-vi.mock("@/services/catalog-cache", () => ({
+vi.mock("@/server/catalog-cache", () => ({
   getCachedCatalog: vi.fn(),
 }));
 

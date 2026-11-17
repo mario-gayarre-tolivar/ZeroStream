@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCachedCatalog } from "@/services/catalog-cache";
+import { getCachedCatalog } from "@/server/catalog-cache";
 
 export const revalidate = 600; // 10 minutos de caché para búsquedas en Edge
 

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Bookmark, Star } from "lucide-react";
 import { MediaItem } from "@/types";
-import { isFavorite, toggleFavorite } from "@/services/history";
+import { isFavorite, toggleFavorite } from "@/client/history";
 
 interface MediaCardProps {
   item: MediaItem;

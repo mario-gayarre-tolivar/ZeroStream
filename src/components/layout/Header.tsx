@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Film, Menu, Tv, Clapperboard, Bookmark, X } from "lucide-react";
-import { useCatalogPrefetch } from "@/hooks/useCatalogPrefetch";
+import { useCatalogPrefetch } from "@/client/hooks/useCatalogPrefetch";
 import { LiveSearch } from "./LiveSearch";
 import { MediaType } from "@/types";
 

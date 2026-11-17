@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ServerCheckRequestSchema } from "@/services/schemas";
-import { getEmbedServers } from "@/services/embeds";
-import { checkServersHealth } from "@/services/server-health";
+import { ServerCheckRequestSchema } from "@/shared/schemas";
+import { getEmbedServers } from "@/shared/embeds";
+import { checkServersHealth } from "@/server/server-health";
 
 export const dynamic = "force-dynamic";
 

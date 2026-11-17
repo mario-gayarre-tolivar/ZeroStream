@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { MediaItem } from "@/types";
 import { Play, Bookmark, Star, Clapperboard } from "lucide-react";
-import { isFavorite, toggleFavorite } from "@/services/history";
+import { isFavorite, toggleFavorite } from "@/client/history";
 
 interface HeroBannerProps {
   item: MediaItem;
