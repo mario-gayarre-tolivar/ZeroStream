@@ -3,11 +3,11 @@
 import { useState, useMemo } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { MediaDetail, MediaType, ServerOption } from "@/types";
-import { SafePlayer } from "@/components/player/SafePlayer";
-import { EpisodeSelector } from "@/components/player/EpisodeSelector";
-import { getEmbedServers } from "@/services/embeds";
-import { toggleFavorite, isFavorite } from "@/services/history";
+import { MediaDetail, ServerOption } from "@/types";
+import { SafePlayer } from "./SafePlayer";
+import { EpisodeSelector } from "./EpisodeSelector";
+import { getEmbedServers } from "@/shared/embeds";
+import { toggleFavorite, isFavorite } from "@/client/history";
 import { Bookmark, Star, Clock, Calendar, Film, Tv, Clapperboard, Video } from "lucide-react";
 
 interface PlayerViewClientProps {

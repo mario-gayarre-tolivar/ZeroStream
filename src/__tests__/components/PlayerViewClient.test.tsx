@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { PlayerViewClient } from "@/app/ver/[type]/[id]/PlayerViewClient";
+import { PlayerViewClient } from "@/components/player/PlayerViewClient";
 import { MediaDetail } from "@/types";
 
 const mockReplace = vi.fn();

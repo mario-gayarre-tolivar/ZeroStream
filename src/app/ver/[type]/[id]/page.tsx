@@ -1,8 +1,8 @@
 import { Metadata } from "next";
-import { getMediaDetail } from "@/services/tmdb";
-import { getAnimeDetail } from "@/services/anilist";
+import { getMediaDetail } from "@/server/tmdb";
+import { getAnimeDetail } from "@/server/anilist";
 import { MediaType } from "@/types";
-import { PlayerViewClient } from "./PlayerViewClient";
+import { PlayerViewClient } from "@/components/player/PlayerViewClient";
 import { notFound } from "next/navigation";
 
 export const revalidate = 3600;
