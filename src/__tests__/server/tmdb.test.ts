@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getTrendingMedia, getMediaDetail } from "@/services/tmdb";
+import { getTrendingMedia, getMediaDetail } from "@/server/tmdb";
 
 describe("Servicio TMDB y Fallbacks Resilientes", () => {
   it("debe retornar catálogo de respaldo cuando no hay llamadas exitosas a TMDB", async () => {

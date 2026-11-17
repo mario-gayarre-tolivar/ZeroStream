@@ -5,7 +5,7 @@ import {
   checkServersHealth,
   clearServerHealthCache,
   serverHealthMemoryCache,
-} from "@/services/server-health";
+} from "@/server/server-health";
 import { ServerOption } from "@/types";
 
 describe("classifyServerResponse", () => {

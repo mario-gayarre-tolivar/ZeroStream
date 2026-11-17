@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { getCachedCatalog, catalogMemoryCache } from "@/services/catalog-cache";
-import { BoundedMemoryCache } from "@/services/lru-cache";
-import * as tmdb from "@/services/tmdb";
+import { getCachedCatalog, catalogMemoryCache } from "@/server/catalog-cache";
+import { BoundedMemoryCache } from "@/shared/lru-cache";
+import * as tmdb from "@/server/tmdb";
 
 describe("Caché en Memoria del Servidor (catalog-cache y BoundedMemoryCache)", () => {
   beforeEach(() => {

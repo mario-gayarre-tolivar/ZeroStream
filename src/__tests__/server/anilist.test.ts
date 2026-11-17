@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { getTrendingAnime, getAnimeDetail, searchAnimeTmdbId } from "@/services/anilist";
+import { getTrendingAnime, getAnimeDetail, searchAnimeTmdbId } from "@/server/anilist";
 
 describe("Servicio AniList GraphQL y Fallbacks", () => {
   beforeEach(() => {
