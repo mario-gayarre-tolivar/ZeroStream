@@ -223,7 +223,8 @@ export function SafePlayer({
       !enableAutoSelect ||
       !isLoading ||
       isCheckingServers ||
-      (allFailed && !showAllOverride)
+      allFailed ||
+      showAllOverride
     ) {
       return;
     }
