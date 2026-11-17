@@ -54,3 +54,20 @@ export const AniListPageResponseSchema = z.object({
     }),
   }),
 });
+
+/**
+ * Esquema de validación para la petición de verificación de servidores (POST /api/servers/check).
+ */
+export const ServerCheckRequestSchema = z.object({
+  type: z.enum(["movie", "tv", "anime"]),
+  id: z.union([z.string().min(1), z.number().int().positive()]),
+  season: z.number().int().min(1).default(1),
+  episode: z.number().int().min(1).default(1),
+  title: z.string().optional(),
+  tmdbId: z.union([z.string().min(1), z.number().int().positive()]).optional(),
+  malId: z.union([z.string().min(1), z.number().int().positive()]).optional(),
+  forceRefresh: z.boolean().default(false),
+});
+
+export type ServerCheckRequest = z.infer<typeof ServerCheckRequestSchema>;
+
