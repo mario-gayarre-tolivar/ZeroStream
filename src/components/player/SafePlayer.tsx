@@ -1,8 +1,18 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { ServerOption, MediaType } from "@/types";
+import {
+  ServerOption,
+  MediaType,
+  ServerCheckResult,
+  ServerCheckResponse,
+} from "@/types";
 import { saveWatchProgress } from "@/services/history";
+import { resolveAutoSelectedServers } from "@/services/server-selection";
+import {
+  buildMediaEpisodeKey,
+  getFailedServerIds,
+} from "@/services/client-server-memory";
 import {
   ShieldAlert,
   ChevronLeft,
@@ -12,7 +22,7 @@ import {
 } from "lucide-react";
 import { PlayerControlBar } from "./ServerSelector";
 
-interface SafePlayerProps {
+export interface SafePlayerProps {
   servers: ServerOption[];
   mediaType: MediaType;
   mediaId: string | number;
@@ -22,6 +32,10 @@ interface SafePlayerProps {
   episode?: number;
   totalEpisodesInSeason?: number;
   onEpisodeChange?: (season: number, episode: number) => void;
+  tmdbId?: string | number;
+  malId?: string | number;
+  enableAutoSelect?: boolean; // Default: false (compatibilidad con tests existentes)
+  iframeTimeoutMs?: number; // Default: 8000
 }
 
 export function SafePlayer({
@@ -34,8 +48,15 @@ export function SafePlayer({
   episode = 1,
   totalEpisodesInSeason,
   onEpisodeChange,
+  tmdbId,
+  malId,
+  enableAutoSelect = false,
+  iframeTimeoutMs = 8000,
 }: SafePlayerProps) {
   const [activeServerIndex, setActiveServerIndex] = useState(0);
+  const [visibleServers, setVisibleServers] = useState<ServerOption[]>(servers);
+  const [healthById, setHealthById] = useState<Record<string, ServerCheckResult>>({});
+  const [isCheckingServers, setIsCheckingServers] = useState<boolean>(Boolean(enableAutoSelect));
   const [isLoading, setIsLoading] = useState(true);
   const [iframeKey, setIframeKey] = useState(0);
   const [isTheaterMode, setIsTheaterMode] = useState(false);
@@ -43,7 +64,89 @@ export function SafePlayer({
   const [showShortcutsModal, setShowShortcutsModal] = useState(false);
 
   const playerContainerRef = useRef<HTMLDivElement>(null);
-  const currentServer = servers[activeServerIndex] || servers[0];
+  const currentServer = visibleServers[activeServerIndex] || visibleServers[0] || servers[0];
+
+  // Pre-chequeo y autoselección de servidores
+  useEffect(() => {
+    if (!enableAutoSelect) {
+      setIsCheckingServers(false);
+      setVisibleServers(servers);
+      return;
+    }
+
+    const abortController = new AbortController();
+    setIsCheckingServers(true);
+
+    async function check() {
+      const mediaKey = buildMediaEpisodeKey(mediaType, mediaId, season, episode);
+      const clientFailedIds = getFailedServerIds(mediaKey);
+
+      let healthResults: ServerCheckResult[] = [];
+      try {
+        const res = await fetch("/api/servers/check", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: mediaType,
+            id: mediaId,
+            season,
+            episode,
+            title,
+            tmdbId,
+            malId,
+            forceRefresh: false,
+          }),
+          signal: abortController.signal,
+        });
+
+        if (res.ok) {
+          const data: ServerCheckResponse = await res.json();
+          healthResults = data.results || [];
+        }
+      } catch {
+        if (abortController.signal.aborted) {
+          return;
+        }
+      }
+
+      if (abortController.signal.aborted) {
+        return;
+      }
+
+      const autoResult = resolveAutoSelectedServers({
+        servers,
+        mediaType,
+        healthResults,
+        clientFailedIds,
+        showAllOverride: false,
+      });
+
+      setHealthById(autoResult.healthById);
+      setVisibleServers(autoResult.visibleServers);
+      const targetIndex = autoResult.selectedServerId
+        ? autoResult.visibleServers.findIndex((s) => s.id === autoResult.selectedServerId)
+        : 0;
+      setActiveServerIndex(targetIndex >= 0 ? targetIndex : 0);
+      setIsCheckingServers(false);
+      setIsLoading(true);
+    }
+
+    check();
+
+    return () => {
+      abortController.abort();
+    };
+  }, [
+    enableAutoSelect,
+    servers,
+    mediaType,
+    mediaId,
+    season,
+    episode,
+    title,
+    tmdbId,
+    malId,
+  ]);
 
   // Guardar en historial de reproducción automáticamente al cargar el reproductor
   useEffect(() => {
@@ -153,7 +256,7 @@ export function SafePlayer({
       >
         {/* Barra modular de servidores y controles */}
         <PlayerControlBar
-          servers={servers}
+          servers={visibleServers}
           activeServerIndex={activeServerIndex}
           onSelectServer={setActiveServerIndex}
           onReload={handleReloadServer}
@@ -163,6 +266,7 @@ export function SafePlayer({
           onOpenShortcuts={() => setShowShortcutsModal(true)}
           copiedLink={copiedLink}
           onCopyLink={handleCopyDirectLink}
+          healthById={healthById}
         />
 
         {/* 16:9 Sandboxed Video Player Container */}
@@ -172,16 +276,21 @@ export function SafePlayer({
             isTheaterMode ? "max-h-[82vh] my-auto" : ""
           }`}
         >
-          {/* Loading Spinner Skeleton */}
-          {isLoading && (
+          {/* Loading / Checking Spinner Skeleton */}
+          {isCheckingServers ? (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/90">
+              <div className="h-9 w-9 animate-spin rounded-full border-2 border-accent border-t-transparent" />
+              <p className="mt-3 text-sm text-muted">Verificando servidores disponibles...</p>
+            </div>
+          ) : isLoading ? (
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/90">
               <div className="h-9 w-9 animate-spin rounded-full border-2 border-accent border-t-transparent" />
               <p className="mt-3 text-sm text-muted">Conectando con el stream externo...</p>
             </div>
-          )}
+          ) : null}
 
           {/* Safe Video Player Container */}
-          {currentServer && (
+          {!isCheckingServers && currentServer && (
             <iframe
               key={`${currentServer.id}-${iframeKey}-${season}-${episode}`}
               src={currentServer.url}

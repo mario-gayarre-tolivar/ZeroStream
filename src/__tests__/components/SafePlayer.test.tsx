@@ -132,4 +132,228 @@ describe("<SafePlayer /> — Reproductor Sandboxed Seguro", () => {
     expect(screen.getByText("1080p")).toBeInTheDocument();
     expect(screen.getByText("1080p Multi")).toBeInTheDocument();
   });
+
+  describe("Modo Autoselección y Pre-chequeo (enableAutoSelect = true)", () => {
+    it("con enableAutoSelect={true}, muestra 'Verificando servidores disponibles...' antes de montar el iframe", async () => {
+      let resolveFetch: (val: any) => void;
+      const fetchPromise = new Promise((resolve) => {
+        resolveFetch = resolve;
+      });
+      vi.spyOn(global, "fetch").mockImplementation(() => fetchPromise as any);
+
+      const { container } = render(
+        <SafePlayer
+          servers={mockServers}
+          mediaType="movie"
+          mediaId={550}
+          title="Fight Club"
+          posterPath="/poster.jpg"
+          enableAutoSelect={true}
+        />
+      );
+
+      // Debe mostrar el mensaje de verificación sin montar el iframe
+      expect(
+        screen.getByText("Verificando servidores disponibles...")
+      ).toBeInTheDocument();
+      expect(container.querySelector("iframe")).toBeNull();
+
+      // Completar la promesa
+      resolveFetch!({
+        ok: true,
+        json: async () => ({
+          results: [],
+          recommendedServerId: null,
+          source: "live",
+        }),
+      });
+
+      // Tras resolver, el iframe debe montarse y el aviso desaparecer
+      await waitFor(() => {
+        expect(
+          screen.queryByText("Verificando servidores disponibles...")
+        ).not.toBeInTheDocument();
+        expect(container.querySelector("iframe")).toBeInTheDocument();
+      });
+    });
+
+    it("tras responder /api/servers/check, monta el iframe del servidor recomendado y oculta los servidores con estado dead en la lista de botones", async () => {
+      const mockServersWithDead: ServerOption[] = [
+        {
+          id: "dead-server",
+          name: "Servidor Muerto",
+          quality: "1080p",
+          url: "https://dead.server/embed/550",
+        },
+        {
+          id: "healthy-server",
+          name: "Servidor Sano",
+          quality: "1080p Multi",
+          url: "https://healthy.server/embed/550",
+        },
+      ];
+
+      vi.spyOn(global, "fetch").mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          results: [
+            {
+              serverId: "dead-server",
+              status: "dead",
+              reason: "http_error",
+              latencyMs: 120,
+              checkedAt: Date.now(),
+            },
+            {
+              serverId: "healthy-server",
+              status: "healthy",
+              reason: "ok",
+              latencyMs: 95,
+              checkedAt: Date.now(),
+            },
+          ],
+          recommendedServerId: "healthy-server",
+          source: "live",
+        }),
+      } as any);
+
+      const { container } = render(
+        <SafePlayer
+          servers={mockServersWithDead}
+          mediaType="movie"
+          mediaId={550}
+          title="Fight Club"
+          posterPath="/poster.jpg"
+          enableAutoSelect={true}
+        />
+      );
+
+      // Esperar a que monte el iframe del servidor recomendado
+      await waitFor(() => {
+        const iframe = container.querySelector("iframe");
+        expect(iframe).toBeInTheDocument();
+        expect(iframe).toHaveAttribute(
+          "src",
+          "https://healthy.server/embed/550"
+        );
+      });
+
+      // Oculta el servidor dead en los botones
+      expect(screen.queryByText("Servidor Muerto")).not.toBeInTheDocument();
+      expect(screen.getByText("Servidor Sano")).toBeInTheDocument();
+    });
+
+    it("en anime, si el primer servidor (anime-zoko-sub) está reportado como dead y el segundo (anime-vidlink-sub) está healthy, autoselecciona anime-vidlink-sub de inmediato", async () => {
+      const animeServers: ServerOption[] = [
+        {
+          id: "anime-zoko-sub",
+          name: "Zoko (Sub)",
+          quality: "1080p Sub",
+          url: "https://zoko.example/embed/1",
+          language: "sub",
+        },
+        {
+          id: "anime-vidlink-sub",
+          name: "VidLink Anime (Sub)",
+          quality: "1080p Sub",
+          url: "https://vidlink.pro/anime/1/1/1",
+          language: "sub",
+        },
+        {
+          id: "anime-megacloud-dub",
+          name: "MegaCloud (Latino)",
+          quality: "1080p Latino",
+          url: "https://megacloud.example/embed/1",
+          language: "dub",
+        },
+      ];
+
+      vi.spyOn(global, "fetch").mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          results: [
+            {
+              serverId: "anime-zoko-sub",
+              status: "dead",
+              reason: "html_error_page",
+              latencyMs: 80,
+              checkedAt: Date.now(),
+            },
+            {
+              serverId: "anime-vidlink-sub",
+              status: "healthy",
+              reason: "ok",
+              latencyMs: 110,
+              checkedAt: Date.now(),
+            },
+            {
+              serverId: "anime-megacloud-dub",
+              status: "healthy",
+              reason: "ok",
+              latencyMs: 130,
+              checkedAt: Date.now(),
+            },
+          ],
+          recommendedServerId: "anime-vidlink-sub",
+          source: "live",
+        }),
+      } as any);
+
+      const { container } = render(
+        <SafePlayer
+          servers={animeServers}
+          mediaType="anime"
+          mediaId="chainsaw-man"
+          season={1}
+          episode={1}
+          title="Chainsaw Man"
+          posterPath="/csm.jpg"
+          enableAutoSelect={true}
+        />
+      );
+
+      await waitFor(() => {
+        const iframe = container.querySelector("iframe");
+        expect(iframe).toBeInTheDocument();
+        expect(iframe).toHaveAttribute(
+          "src",
+          "https://vidlink.pro/anime/1/1/1"
+        );
+      });
+
+      expect(screen.queryByText("Zoko (Sub)")).not.toBeInTheDocument();
+      expect(screen.getByText("VidLink Anime (Sub)")).toBeInTheDocument();
+      expect(screen.getByText("MegaCloud (Latino)")).toBeInTheDocument();
+    });
+
+    it("si /api/servers/check falla por error de red o error 500, degrada limpiamente y monta el primer servidor disponible", async () => {
+      vi.spyOn(global, "fetch").mockRejectedValueOnce(
+        new Error("Fallo de red simulado")
+      );
+
+      const { container } = render(
+        <SafePlayer
+          servers={mockServers}
+          mediaType="movie"
+          mediaId={550}
+          title="Fight Club"
+          posterPath="/poster.jpg"
+          enableAutoSelect={true}
+        />
+      );
+
+      await waitFor(() => {
+        const iframe = container.querySelector("iframe");
+        expect(iframe).toBeInTheDocument();
+        expect(iframe).toHaveAttribute(
+          "src",
+          "https://vidsrc.me/embed/movie?tmdb=550"
+        );
+      });
+
+      // Ambos servidores deben estar presentes en el control bar
+      expect(screen.getByText("Servidor Principal")).toBeInTheDocument();
+      expect(screen.getByText("Servidor Secundario")).toBeInTheDocument();
+    });
+  });
 });

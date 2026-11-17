@@ -1,6 +1,6 @@
 "use client";
 
-import { ServerOption } from "@/types";
+import { ServerOption, ServerCheckResult } from "@/types";
 import {
   Layers,
   RotateCcw,
@@ -11,7 +11,7 @@ import {
   Keyboard,
 } from "lucide-react";
 
-interface PlayerControlBarProps {
+export interface PlayerControlBarProps {
   servers: ServerOption[];
   activeServerIndex: number;
   onSelectServer: (index: number) => void;
@@ -22,6 +22,9 @@ interface PlayerControlBarProps {
   onOpenShortcuts: () => void;
   copiedLink: boolean;
   onCopyLink: () => void;
+  healthById?: Record<string, ServerCheckResult>;
+  onTryNextServer?: () => void;
+  canTryNextServer?: boolean;
 }
 
 export function PlayerControlBar({
@@ -35,6 +38,9 @@ export function PlayerControlBar({
   onOpenShortcuts,
   copiedLink,
   onCopyLink,
+  healthById,
+  onTryNextServer,
+  canTryNextServer,
 }: PlayerControlBarProps) {
   return (
     <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5 rounded-poster border border-border bg-surface p-3 sm:px-4 sm:py-2.5 w-full">
