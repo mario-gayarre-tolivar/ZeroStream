@@ -99,6 +99,9 @@ export function PlayerViewClient({
           episode={currentEpisode}
           totalEpisodesInSeason={totalEpisodesInSeason}
           onEpisodeChange={media.type !== "movie" ? handleEpisodeChange : undefined}
+          enableAutoSelect={true}
+          tmdbId={media.tmdbId}
+          malId={media.malId}
         />
       </section>
 
