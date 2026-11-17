@@ -54,6 +54,18 @@ export function PlayerControlBar({
 
       {/* 2. Botones de acción rápida: Arriba a la derecha en móvil (order-2), derecha en desktop (order-3) */}
       <div className="flex items-center gap-1.5 shrink-0 order-2 sm:order-3">
+        {/* Probar siguiente servidor (si está habilitado) */}
+        {canTryNextServer && onTryNextServer && (
+          <button
+            type="button"
+            onClick={onTryNextServer}
+            className="flex items-center gap-1 rounded-poster bg-accent/20 border border-accent/40 text-accent px-2.5 py-1 text-xs font-medium hover:bg-accent/30 transition-colors"
+            title="Probar siguiente servidor"
+          >
+            <span>Probar siguiente</span>
+          </button>
+        )}
+
         {/* Copiar enlace directo */}
         <button
           type="button"

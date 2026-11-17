@@ -12,6 +12,8 @@ import { resolveAutoSelectedServers } from "@/services/server-selection";
 import {
   buildMediaEpisodeKey,
   getFailedServerIds,
+  markServerFailed,
+  clearFailedServers,
 } from "@/services/client-server-memory";
 import {
   ShieldAlert,
@@ -57,6 +59,8 @@ export function SafePlayer({
   const [visibleServers, setVisibleServers] = useState<ServerOption[]>(servers);
   const [healthById, setHealthById] = useState<Record<string, ServerCheckResult>>({});
   const [isCheckingServers, setIsCheckingServers] = useState<boolean>(Boolean(enableAutoSelect));
+  const [allFailed, setAllFailed] = useState<boolean>(false);
+  const [showAllOverride, setShowAllOverride] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
   const [iframeKey, setIframeKey] = useState(0);
   const [isTheaterMode, setIsTheaterMode] = useState(false);
@@ -65,19 +69,26 @@ export function SafePlayer({
 
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const currentServer = visibleServers[activeServerIndex] || visibleServers[0] || servers[0];
+  const currentServerRef = useRef(currentServer);
+  currentServerRef.current = currentServer;
+  const healthResultsRef = useRef<ServerCheckResult[]>([]);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Pre-chequeo y autoselección de servidores
-  useEffect(() => {
-    if (!enableAutoSelect) {
-      setIsCheckingServers(false);
-      setVisibleServers(servers);
-      return;
-    }
+  const runServerCheck = useCallback(
+    async (forceRefresh = false) => {
+      if (!enableAutoSelect) {
+        setIsCheckingServers(false);
+        setVisibleServers(servers);
+        setAllFailed(false);
+        return;
+      }
 
-    const abortController = new AbortController();
-    setIsCheckingServers(true);
+      abortControllerRef.current?.abort();
+      const abortController = new AbortController();
+      abortControllerRef.current = abortController;
 
-    async function check() {
+      setIsCheckingServers(true);
       const mediaKey = buildMediaEpisodeKey(mediaType, mediaId, season, episode);
       const clientFailedIds = getFailedServerIds(mediaKey);
 
@@ -94,7 +105,7 @@ export function SafePlayer({
             title,
             tmdbId,
             malId,
-            forceRefresh: false,
+            forceRefresh,
           }),
           signal: abortController.signal,
         });
@@ -113,6 +124,8 @@ export function SafePlayer({
         return;
       }
 
+      healthResultsRef.current = healthResults;
+
       const autoResult = resolveAutoSelectedServers({
         servers,
         mediaType,
@@ -123,29 +136,114 @@ export function SafePlayer({
 
       setHealthById(autoResult.healthById);
       setVisibleServers(autoResult.visibleServers);
-      const targetIndex = autoResult.selectedServerId
-        ? autoResult.visibleServers.findIndex((s) => s.id === autoResult.selectedServerId)
-        : 0;
-      setActiveServerIndex(targetIndex >= 0 ? targetIndex : 0);
+      setAllFailed(autoResult.allFailed);
+
+      if (!autoResult.allFailed) {
+        const targetIndex = autoResult.selectedServerId
+          ? autoResult.visibleServers.findIndex((s) => s.id === autoResult.selectedServerId)
+          : 0;
+        setActiveServerIndex(targetIndex >= 0 ? targetIndex : 0);
+      }
       setIsCheckingServers(false);
       setIsLoading(true);
-    }
+    },
+    [
+      enableAutoSelect,
+      servers,
+      mediaType,
+      mediaId,
+      season,
+      episode,
+      title,
+      tmdbId,
+      malId,
+    ]
+  );
 
-    check();
+  useEffect(() => {
+    setShowAllOverride(false);
+    setAllFailed(false);
+    runServerCheck(false);
 
     return () => {
-      abortController.abort();
+      abortControllerRef.current?.abort();
+    };
+  }, [runServerCheck]);
+
+  const handleTryNextServer = useCallback(() => {
+    const active = currentServerRef.current;
+    if (!active?.id) return;
+
+    const mediaKey = buildMediaEpisodeKey(mediaType, mediaId, season, episode);
+    const updatedFailedIds = markServerFailed(mediaKey, active.id);
+
+    const autoResult = resolveAutoSelectedServers({
+      servers,
+      mediaType,
+      healthResults: healthResultsRef.current,
+      clientFailedIds: updatedFailedIds,
+      showAllOverride: false,
+    });
+
+    setHealthById(autoResult.healthById);
+    setVisibleServers(autoResult.visibleServers);
+    setAllFailed(autoResult.allFailed);
+
+    if (autoResult.allFailed) {
+      setIsLoading(false);
+    } else {
+      const nextIndex = autoResult.selectedServerId
+        ? autoResult.visibleServers.findIndex((s) => s.id === autoResult.selectedServerId)
+        : 0;
+      setActiveServerIndex(nextIndex >= 0 ? nextIndex : 0);
+      setIsLoading(true);
+      setIframeKey((prev) => prev + 1);
+    }
+  }, [mediaType, mediaId, season, episode, servers]);
+
+  const handleShowAllManually = useCallback(() => {
+    setShowAllOverride(true);
+    setVisibleServers(servers);
+    setActiveServerIndex(0);
+    setIsLoading(true);
+    setIframeKey((prev) => prev + 1);
+  }, [servers]);
+
+  const handleRetryVerification = useCallback(() => {
+    const mediaKey = buildMediaEpisodeKey(mediaType, mediaId, season, episode);
+    clearFailedServers(mediaKey);
+    setShowAllOverride(false);
+    setAllFailed(false);
+    runServerCheck(true);
+  }, [mediaType, mediaId, season, episode, runServerCheck]);
+
+  // Timeout de carga del iframe (auto-fallback al siguiente servidor)
+  useEffect(() => {
+    if (
+      !enableAutoSelect ||
+      !isLoading ||
+      isCheckingServers ||
+      (allFailed && !showAllOverride)
+    ) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      handleTryNextServer();
+    }, iframeTimeoutMs);
+
+    return () => {
+      clearTimeout(timer);
     };
   }, [
     enableAutoSelect,
-    servers,
-    mediaType,
-    mediaId,
-    season,
-    episode,
-    title,
-    tmdbId,
-    malId,
+    isLoading,
+    isCheckingServers,
+    allFailed,
+    showAllOverride,
+    iframeTimeoutMs,
+    iframeKey,
+    handleTryNextServer,
   ]);
 
   // Guardar en historial de reproducción automáticamente al cargar el reproductor
@@ -267,6 +365,13 @@ export function SafePlayer({
           copiedLink={copiedLink}
           onCopyLink={handleCopyDirectLink}
           healthById={healthById}
+          onTryNextServer={handleTryNextServer}
+          canTryNextServer={Boolean(
+            enableAutoSelect &&
+              !allFailed &&
+              !showAllOverride &&
+              visibleServers.length > 0
+          )}
         />
 
         {/* 16:9 Sandboxed Video Player Container */}
@@ -282,6 +387,32 @@ export function SafePlayer({
               <div className="h-9 w-9 animate-spin rounded-full border-2 border-accent border-t-transparent" />
               <p className="mt-3 text-sm text-muted">Verificando servidores disponibles...</p>
             </div>
+          ) : allFailed && !showAllOverride ? (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/95 p-6 text-center">
+              <ShieldAlert className="h-10 w-10 text-accent mb-3" aria-hidden="true" />
+              <p className="text-base font-semibold text-foreground">
+                No se encontraron servidores funcionales disponibles
+              </p>
+              <p className="mt-1 max-w-md text-xs text-muted">
+                Todos los servidores conocidos fallaron o están temporalmente caídos.
+              </p>
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleRetryVerification}
+                  className="rounded-poster bg-accent px-4 py-2 text-xs font-semibold text-accent-ink hover:bg-accent-hover transition-colors"
+                >
+                  Reintentar verificación
+                </button>
+                <button
+                  type="button"
+                  onClick={handleShowAllManually}
+                  className="rounded-poster border border-border-active bg-surface px-4 py-2 text-xs font-medium text-foreground hover:bg-surface-hover transition-colors"
+                >
+                  Mostrar todos manualmente
+                </button>
+              </div>
+            </div>
           ) : isLoading ? (
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/90">
               <div className="h-9 w-9 animate-spin rounded-full border-2 border-accent border-t-transparent" />
@@ -290,7 +421,7 @@ export function SafePlayer({
           ) : null}
 
           {/* Safe Video Player Container */}
-          {!isCheckingServers && currentServer && (
+          {!isCheckingServers && (!allFailed || showAllOverride) && currentServer && (
             <iframe
               key={`${currentServer.id}-${iframeKey}-${season}-${episode}`}
               src={currentServer.url}

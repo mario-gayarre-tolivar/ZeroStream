@@ -1,7 +1,11 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { SafePlayer } from "@/components/player/SafePlayer";
 import { ServerOption } from "@/types";
+import {
+  getFailedServerIds,
+  markServerFailed,
+} from "@/services/client-server-memory";
 
 describe("<SafePlayer /> — Reproductor Sandboxed Seguro", () => {
   const mockServers: ServerOption[] = [
@@ -20,8 +24,10 @@ describe("<SafePlayer /> — Reproductor Sandboxed Seguro", () => {
   ];
 
   beforeEach(() => {
+    sessionStorage.clear();
     localStorage.clear();
     vi.restoreAllMocks();
+    vi.useRealTimers();
   });
 
   it("debe renderizar el iframe sin atributo sandbox para compatibilidad total con servidores externos", () => {
@@ -354,6 +360,291 @@ describe("<SafePlayer /> — Reproductor Sandboxed Seguro", () => {
       // Ambos servidores deben estar presentes en el control bar
       expect(screen.getByText("Servidor Principal")).toBeInTheDocument();
       expect(screen.getByText("Servidor Secundario")).toBeInTheDocument();
+    });
+
+    it("al pulsar el botón 'Probar siguiente', marca el servidor actual en memoria de sesión y cambia al siguiente servidor sano", async () => {
+      vi.spyOn(global, "fetch").mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          results: [
+            { serverId: "vidsrc", status: "healthy", latencyMs: 50 },
+            { serverId: "embedsu", status: "healthy", latencyMs: 60 },
+          ],
+          recommendedServerId: "vidsrc",
+          source: "live",
+        }),
+      } as any);
+
+      const { container } = render(
+        <SafePlayer
+          servers={mockServers}
+          mediaType="movie"
+          mediaId={550}
+          title="Fight Club"
+          posterPath="/poster.jpg"
+          enableAutoSelect={true}
+        />
+      );
+
+      // Esperar a que se monte el primer servidor
+      await waitFor(() => {
+        expect(container.querySelector("iframe")).toHaveAttribute(
+          "src",
+          "https://vidsrc.me/embed/movie?tmdb=550"
+        );
+      });
+
+      // El botón 'Probar siguiente' debe estar disponible
+      const tryNextBtn = screen.getByRole("button", {
+        name: /probar siguiente/i,
+      });
+      expect(tryNextBtn).toBeInTheDocument();
+
+      // Pulsamos 'Probar siguiente'
+      fireEvent.click(tryNextBtn);
+
+      // Debe registrar vidsrc en sessionStorage como fallido
+      expect(getFailedServerIds("movie:550")).toContain("vidsrc");
+
+      // Debe cambiar el iframe al siguiente servidor sano (embedsu)
+      await waitFor(() => {
+        expect(container.querySelector("iframe")).toHaveAttribute(
+          "src",
+          "https://embed.su/embed/movie/550"
+        );
+      });
+
+      // En el carril de servidores, vidsrc ya no debe mostrarse y embedsu sí
+      expect(screen.queryByText("Servidor Principal")).not.toBeInTheDocument();
+      expect(screen.getByText("Servidor Secundario")).toBeInTheDocument();
+    });
+
+    it("si el iframe no dispara onLoad tras iframeTimeoutMs, cambia automáticamente al siguiente servidor disponible", async () => {
+      vi.useFakeTimers();
+
+      vi.spyOn(global, "fetch").mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          results: [
+            { serverId: "vidsrc", status: "healthy", latencyMs: 50 },
+            { serverId: "embedsu", status: "healthy", latencyMs: 60 },
+          ],
+          recommendedServerId: "vidsrc",
+          source: "live",
+        }),
+      } as any);
+
+      const { container } = render(
+        <SafePlayer
+          servers={mockServers}
+          mediaType="movie"
+          mediaId={550}
+          title="Fight Club"
+          posterPath="/poster.jpg"
+          enableAutoSelect={true}
+          iframeTimeoutMs={8000}
+        />
+      );
+
+      // Esperar a que se procese el fetch inicial y se monte el iframe
+      await act(async () => {
+        await Promise.resolve();
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+
+      const iframeBefore = container.querySelector("iframe");
+      expect(iframeBefore).toBeInTheDocument();
+      expect(iframeBefore).toHaveAttribute(
+        "src",
+        "https://vidsrc.me/embed/movie?tmdb=550"
+      );
+
+      // Avanzamos el temporizador para simular que el iframe no disparó onLoad tras 8000ms
+      await act(async () => {
+        vi.advanceTimersByTime(8000);
+      });
+
+      const iframeAfter = container.querySelector("iframe");
+      expect(iframeAfter).toBeInTheDocument();
+      expect(iframeAfter).toHaveAttribute(
+        "src",
+        "https://embed.su/embed/movie/550"
+      );
+
+      // Verificar que vidsrc quedó registrado en memoria como fallido
+      expect(getFailedServerIds("movie:550")).toContain("vidsrc");
+
+      vi.useRealTimers();
+    });
+
+    it("cuando todos los servidores fallan (allFailed === true), renderiza el panel de rescate con los botones 'Reintentar verificación' y 'Mostrar todos manualmente'", async () => {
+      vi.spyOn(global, "fetch").mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          results: [
+            { serverId: "vidsrc", status: "dead", latencyMs: 0 },
+            { serverId: "embedsu", status: "dead", latencyMs: 0 },
+          ],
+          recommendedServerId: null,
+          source: "live",
+        }),
+      } as any);
+
+      const { container } = render(
+        <SafePlayer
+          servers={mockServers}
+          mediaType="movie"
+          mediaId={550}
+          title="Fight Club"
+          posterPath="/poster.jpg"
+          enableAutoSelect={true}
+        />
+      );
+
+      // Debe renderizar el panel de rescate y no montar iframe
+      await waitFor(() => {
+        expect(
+          screen.getByText("No se encontraron servidores funcionales disponibles")
+        ).toBeInTheDocument();
+      });
+
+      expect(container.querySelector("iframe")).toBeNull();
+      expect(
+        screen.getByRole("button", { name: /reintentar verificación/i })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /mostrar todos manualmente/i })
+      ).toBeInTheDocument();
+    });
+
+    it("al pulsar 'Mostrar todos manualmente', despliega todos los servidores en el carril y monta el primero", async () => {
+      vi.spyOn(global, "fetch").mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          results: [
+            { serverId: "vidsrc", status: "dead", latencyMs: 0 },
+            { serverId: "embedsu", status: "dead", latencyMs: 0 },
+          ],
+          recommendedServerId: null,
+          source: "live",
+        }),
+      } as any);
+
+      const { container } = render(
+        <SafePlayer
+          servers={mockServers}
+          mediaType="movie"
+          mediaId={550}
+          title="Fight Club"
+          posterPath="/poster.jpg"
+          enableAutoSelect={true}
+        />
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.getByText("No se encontraron servidores funcionales disponibles")
+        ).toBeInTheDocument();
+      });
+
+      // Hacemos click en "Mostrar todos manualmente"
+      const showAllBtn = screen.getByRole("button", {
+        name: /mostrar todos manualmente/i,
+      });
+      fireEvent.click(showAllBtn);
+
+      // El panel de rescate desaparece
+      expect(
+        screen.queryByText("No se encontraron servidores funcionales disponibles")
+      ).not.toBeInTheDocument();
+
+      // Monta el primer servidor en el iframe
+      await waitFor(() => {
+        expect(container.querySelector("iframe")).toHaveAttribute(
+          "src",
+          "https://vidsrc.me/embed/movie?tmdb=550"
+        );
+      });
+
+      // Despliega todos los servidores en el control bar
+      expect(screen.getByText("Servidor Principal")).toBeInTheDocument();
+      expect(screen.getByText("Servidor Secundario")).toBeInTheDocument();
+    });
+
+    it("al pulsar 'Reintentar verificación', reinicia el chequeo con forceRefresh: true", async () => {
+      const fetchSpy = vi.spyOn(global, "fetch");
+
+      // Primer chequeo: todos dead
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          results: [
+            { serverId: "vidsrc", status: "dead", latencyMs: 0 },
+            { serverId: "embedsu", status: "dead", latencyMs: 0 },
+          ],
+          recommendedServerId: null,
+          source: "live",
+        }),
+      } as any);
+
+      // Segundo chequeo (reintento forzado): vidsrc ahora está healthy
+      fetchSpy.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          results: [
+            { serverId: "vidsrc", status: "healthy", latencyMs: 50 },
+            { serverId: "embedsu", status: "dead", latencyMs: 0 },
+          ],
+          recommendedServerId: "vidsrc",
+          source: "live",
+        }),
+      } as any);
+
+      // Simulamos que vidsrc estaba marcado como fallido previamente
+      markServerFailed("movie:550", "vidsrc");
+      expect(getFailedServerIds("movie:550")).toContain("vidsrc");
+
+      const { container } = render(
+        <SafePlayer
+          servers={mockServers}
+          mediaType="movie"
+          mediaId={550}
+          title="Fight Club"
+          posterPath="/poster.jpg"
+          enableAutoSelect={true}
+        />
+      );
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole("button", { name: /reintentar verificación/i })
+        ).toBeInTheDocument();
+      });
+
+      // Hacemos click en "Reintentar verificación"
+      const retryBtn = screen.getByRole("button", {
+        name: /reintentar verificación/i,
+      });
+      fireEvent.click(retryBtn);
+
+      // Debe haber limpiado los fallos en memoria para movie:550
+      expect(getFailedServerIds("movie:550")).toEqual([]);
+
+      // Debe haber llamado a fetch con forceRefresh: true
+      await waitFor(() => {
+        expect(fetchSpy).toHaveBeenCalledTimes(2);
+      });
+      const secondCallBody = JSON.parse(fetchSpy.mock.calls[1][1]?.body as string);
+      expect(secondCallBody.forceRefresh).toBe(true);
+
+      // Monta el servidor recuperado (vidsrc)
+      await waitFor(() => {
+        expect(container.querySelector("iframe")).toHaveAttribute(
+          "src",
+          "https://vidsrc.me/embed/movie?tmdb=550"
+        );
+      });
     });
   });
 });
