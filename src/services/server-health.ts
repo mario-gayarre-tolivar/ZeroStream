@@ -30,7 +30,7 @@ export async function probeServerUrl(
   if (options?.forceRefresh !== true) {
     const cached = serverHealthMemoryCache.get(server.url);
     if (cached) {
-      return cached;
+      return { ...cached, serverId: server.id };
     }
   }
 
@@ -56,7 +56,10 @@ export async function probeServerUrl(
     try {
       const text = await res.text();
       htmlSnippet = text.slice(0, 16384);
-    } catch {
+    } catch (textErr) {
+      if (controller.signal.aborted) {
+        throw textErr;
+      }
       htmlSnippet = "";
     }
 
