@@ -1,4 +1,183 @@
-import { ServerHealthStatus, ServerHealthReason } from "@/types";
+import {
+  MediaType,
+  ServerOption,
+  ServerCheckResult,
+  ServerCheckResponse,
+  ServerHealthStatus,
+  ServerHealthReason,
+} from "@/types";
+import { BoundedMemoryCache } from "./lru-cache";
+import { orderServersForAutoSelection } from "./embeds";
+
+export interface ProbeOptions {
+  timeoutMs?: number; // Default: 2800
+  forceRefresh?: boolean; // Default: false
+  fetchFn?: typeof fetch; // Inyectable para pruebas deterministas
+}
+
+export const serverHealthMemoryCache = new BoundedMemoryCache<ServerCheckResult>(150);
+
+const TTL_BY_STATUS: Record<ServerHealthStatus, number> = {
+  healthy: 10 * 60 * 1000,
+  dead: 3 * 60 * 1000,
+  uncertain: 2 * 60 * 1000,
+};
+
+export async function probeServerUrl(
+  server: ServerOption,
+  options?: ProbeOptions
+): Promise<ServerCheckResult> {
+  if (options?.forceRefresh !== true) {
+    const cached = serverHealthMemoryCache.get(server.url);
+    if (cached) {
+      return cached;
+    }
+  }
+
+  const fetchImpl = options?.fetchFn || fetch;
+  const timeoutMs = options?.timeoutMs ?? 2800;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  const start = Date.now();
+
+  try {
+    const res = await fetchImpl(server.url, {
+      signal: controller.signal,
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        Accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      },
+    });
+
+    let htmlSnippet = "";
+    try {
+      const text = await res.text();
+      htmlSnippet = text.slice(0, 16384);
+    } catch {
+      htmlSnippet = "";
+    }
+
+    const latencyMs = Date.now() - start;
+    const classification = classifyServerResponse({
+      status: res.status,
+      headers: res.headers,
+      htmlSnippet,
+    });
+
+    const result: ServerCheckResult = {
+      serverId: server.id,
+      status: classification.status,
+      reason: classification.reason,
+      httpStatus: res.status,
+      latencyMs,
+      checkedAt: Date.now(),
+    };
+
+    serverHealthMemoryCache.set(
+      server.url,
+      result,
+      TTL_BY_STATUS[result.status]
+    );
+    return result;
+  } catch (err: any) {
+    const latencyMs = Date.now() - start;
+    const isTimeout =
+      err?.name === "AbortError" ||
+      controller.signal.aborted ||
+      err?.code === "ETIMEDOUT";
+
+    const result: ServerCheckResult = {
+      serverId: server.id,
+      status: "dead",
+      reason: isTimeout ? "timeout" : "network_error",
+      latencyMs,
+      checkedAt: Date.now(),
+    };
+
+    serverHealthMemoryCache.set(
+      server.url,
+      result,
+      TTL_BY_STATUS[result.status]
+    );
+    return result;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+export async function checkServersHealth(
+  servers: ServerOption[],
+  type: MediaType,
+  options?: ProbeOptions
+): Promise<ServerCheckResponse> {
+  let cachedCount = 0;
+  let liveCount = 0;
+
+  for (const s of servers) {
+    if (
+      options?.forceRefresh !== true &&
+      serverHealthMemoryCache.get(s.url) !== undefined
+    ) {
+      cachedCount++;
+    } else {
+      liveCount++;
+    }
+  }
+
+  const results = await Promise.all(
+    servers.map((server) => probeServerUrl(server, options))
+  );
+
+  let source: "cache" | "live" | "mixed" = "live";
+  if (cachedCount > 0 && liveCount > 0) {
+    source = "mixed";
+  } else if (cachedCount > 0 && liveCount === 0) {
+    source = "cache";
+  } else {
+    source = "live";
+  }
+
+  const ordered = orderServersForAutoSelection(servers, type);
+  const resultMap = new Map<string, ServerCheckResult>();
+  for (const res of results) {
+    resultMap.set(res.serverId, res);
+  }
+
+  let recommendedServerId: string | null = null;
+
+  // 1. Primer servidor sano (healthy)
+  for (const s of ordered) {
+    const res = resultMap.get(s.id);
+    if (res?.status === "healthy") {
+      recommendedServerId = s.id;
+      break;
+    }
+  }
+
+  // 2. Si ninguno es sano, primer servidor incierto (uncertain)
+  if (!recommendedServerId) {
+    for (const s of ordered) {
+      const res = resultMap.get(s.id);
+      if (res?.status === "uncertain") {
+        recommendedServerId = s.id;
+        break;
+      }
+    }
+  }
+
+  return {
+    results,
+    recommendedServerId,
+    source,
+  };
+}
+
+export function clearServerHealthCache(): void {
+  serverHealthMemoryCache.clear();
+}
 
 const BOT_CHALLENGE_SIGNATURES = [
   "cloudflare",
