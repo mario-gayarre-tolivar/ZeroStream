@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { getEmbedServers, resolveTmdbId, orderServersForAutoSelection } from "@/services/embeds";
+import { getEmbedServers, resolveTmdbId, orderServersForAutoSelection } from "@/shared/embeds";
 import { ServerOption } from "@/types";
 
-describe("Servicio de Embeds (Zero-Storage)", () => {
+describe("Servicio de Embeds (Shared / Isomórfico)", () => {
   it("debe resolver IDs de AniList a TMDB para animes populares y corregir asignaciones erróneas", () => {
     expect(resolveTmdbId("anime", 16498)).toBe("1429"); // Attack on Titan
     expect(resolveTmdbId("anime", 20)).toBe("46260"); // Naruto
@@ -16,7 +16,6 @@ describe("Servicio de Embeds (Zero-Storage)", () => {
   });
 
   it("debe priorizar explicitTmdbId sobre el mapeo estático cuando se proporciona", () => {
-    // Si se pasa un tmdbId explícito resuelto dinámicamente, debe tener precedencia
     expect(resolveTmdbId("anime", 999999, "88888")).toBe("88888");
     expect(resolveTmdbId("anime", 11061, "99999")).toBe("99999");
   });
@@ -58,26 +57,21 @@ describe("Servicio de Embeds (Zero-Storage)", () => {
   });
 
   it("debe proveer servidores dedicados para anime nativos (Zoko/HiAnime y VidLink Anime) con MAL ID y episodio absoluto", () => {
-    // Caso Hunter x Hunter: AniList ID 11061, MAL ID 11061, Episodio 70
     const servers = getEmbedServers("anime", 11061, 1, 70, "Hunter x Hunter", "46298", 11061);
 
-    // Servidor HiAnime Sub (Zoko)
     const zokoSub = servers.find((s) => s.id === "anime-zoko-sub");
     expect(zokoSub).toBeDefined();
     expect(zokoSub?.url).toContain("zokoanime.video/stream/mal/11061/70/sub?color=f0b44c");
     expect(zokoSub?.isRecommended).toBe(true);
 
-    // Servidor HiAnime Dub (Zoko)
     const zokoDub = servers.find((s) => s.id === "anime-zoko-dub");
     expect(zokoDub).toBeDefined();
     expect(zokoDub?.url).toContain("zokoanime.video/stream/mal/11061/70/dub?color=f0b44c");
 
-    // Servidor VidLink Anime Sub
     const vidlinkSub = servers.find((s) => s.id === "anime-vidlink-sub");
     expect(vidlinkSub).toBeDefined();
     expect(vidlinkSub?.url).toContain("vidlink.pro/anime/11061/70/sub?fallback=true");
 
-    // Servidor VidLink Anime Dub
     const vidlinkDub = servers.find((s) => s.id === "anime-vidlink-dub");
     expect(vidlinkDub).toBeDefined();
     expect(vidlinkDub?.url).toContain("vidlink.pro/anime/11061/70/dub?fallback=true");
@@ -104,11 +98,9 @@ describe("Servicio de Embeds (Zero-Storage)", () => {
       54492
     );
 
-    // Servidores nativos primero
     expect(servers[0].id).toBe("anime-zoko-sub");
     expect(servers[0].url).toContain("zokoanime.video/stream/mal/54492/1/sub");
 
-    // Servidores TMDB de respaldo al final
     const embedsu = servers.find((s) => s.id === "anime-embedsu");
     expect(embedsu).toBeDefined();
     expect(embedsu?.url).toContain("embed.su/embed/tv/220542/1/1");
@@ -131,7 +123,6 @@ describe("Servicio de Embeds (Zero-Storage)", () => {
       );
       const originalIds = originalServers.map((s) => s.id);
 
-      // Verificamos que el orden original de getEmbedServers tiene Zoko Sub, Zoko Dub, Vidlink Sub, Vidlink Dub, TMDB...
       expect(originalIds).toEqual([
         "anime-zoko-sub",
         "anime-zoko-dub",
@@ -145,13 +136,9 @@ describe("Servicio de Embeds (Zero-Storage)", () => {
 
       const ordered = orderServersForAutoSelection(originalServers, "anime");
 
-      // No debe ser la misma referencia en memoria (inmutabilidad)
       expect(ordered).not.toBe(originalServers);
-
-      // El array original no debe haberse mutado
       expect(originalServers.map((s) => s.id)).toEqual(originalIds);
 
-      // El orden esperado para autoselección debe agrupar Sub primero, luego Dub, luego TMDB
       expect(ordered.map((s) => s.id)).toEqual([
         "anime-zoko-sub",
         "anime-vidlink-sub",

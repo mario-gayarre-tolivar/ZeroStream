@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { resolveAutoSelectedServers } from "@/services/server-selection";
+import { resolveAutoSelectedServers } from "@/shared/server-selection";
 import { ServerOption, ServerCheckResult } from "@/types";
 
 describe("server-selection — resolveAutoSelectedServers", () => {
