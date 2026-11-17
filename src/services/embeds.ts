@@ -197,3 +197,42 @@ export function getEmbedServers(
     },
   ];
 }
+
+function getAnimeServerPriority(server: ServerOption): number {
+  if (typeof server.autoPriority === "number") {
+    return server.autoPriority;
+  }
+  if (server.language === "sub") {
+    return 1;
+  }
+  if (server.language === "dub") {
+    return 2;
+  }
+  const id = server.id.toLowerCase();
+  if (id.includes("-sub") || id.endsWith("sub")) {
+    return 1;
+  }
+  if (id.includes("-dub") || id.endsWith("dub")) {
+    return 2;
+  }
+  return 3;
+}
+
+/**
+ * Ordena una copia de los servidores para la lógica de autoselección y fallback.
+ * Para anime: da prioridad 1 a Sub nativos, prioridad 2 a Dub nativos, y prioridad 3 a TMDB.
+ * Para movie/tv: preserva el orden original configurado de servidores.
+ * Garantiza inmutabilidad (no muta el array recibido).
+ */
+export function orderServersForAutoSelection(
+  servers: ServerOption[],
+  type: MediaType
+): ServerOption[] {
+  if (type !== "anime") {
+    return [...servers];
+  }
+
+  return [...servers].sort((a, b) => {
+    return getAnimeServerPriority(a) - getAnimeServerPriority(b);
+  });
+}

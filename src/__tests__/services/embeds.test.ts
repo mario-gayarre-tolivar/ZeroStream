@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { getEmbedServers, resolveTmdbId } from "@/services/embeds";
+import { getEmbedServers, resolveTmdbId, orderServersForAutoSelection } from "@/services/embeds";
+import { ServerOption } from "@/types";
 
 describe("Servicio de Embeds (Zero-Storage)", () => {
   it("debe resolver IDs de AniList a TMDB para animes populares y corregir asignaciones erróneas", () => {
@@ -115,5 +116,83 @@ describe("Servicio de Embeds (Zero-Storage)", () => {
     const superembed = servers.find((s) => s.id === "anime-super");
     expect(superembed).toBeDefined();
     expect(superembed?.url).toContain("multiembed.mov/?video_id=220542&tmdb=1&s=1&e=1");
+  });
+
+  describe("orderServersForAutoSelection", () => {
+    it("debe ordenar servidores de anime priorizando Sub -> Dub -> TMDB sin mutar el array original", () => {
+      const originalServers = getEmbedServers(
+        "anime",
+        11061,
+        1,
+        70,
+        "Hunter x Hunter",
+        "46298",
+        11061
+      );
+      const originalIds = originalServers.map((s) => s.id);
+
+      // Verificamos que el orden original de getEmbedServers tiene Zoko Sub, Zoko Dub, Vidlink Sub, Vidlink Dub, TMDB...
+      expect(originalIds).toEqual([
+        "anime-zoko-sub",
+        "anime-zoko-dub",
+        "anime-vidlink-sub",
+        "anime-vidlink-dub",
+        "anime-embedsu",
+        "anime-super",
+        "anime-autoembed",
+        "anime-smashy",
+      ]);
+
+      const ordered = orderServersForAutoSelection(originalServers, "anime");
+
+      // No debe ser la misma referencia en memoria (inmutabilidad)
+      expect(ordered).not.toBe(originalServers);
+
+      // El array original no debe haberse mutado
+      expect(originalServers.map((s) => s.id)).toEqual(originalIds);
+
+      // El orden esperado para autoselección debe agrupar Sub primero, luego Dub, luego TMDB
+      expect(ordered.map((s) => s.id)).toEqual([
+        "anime-zoko-sub",
+        "anime-vidlink-sub",
+        "anime-zoko-dub",
+        "anime-vidlink-dub",
+        "anime-embedsu",
+        "anime-super",
+        "anime-autoembed",
+        "anime-smashy",
+      ]);
+    });
+
+    it("debe conservar el orden original para películas y series de TV retornando una copia superficial", () => {
+      const movieServers = getEmbedServers("movie", 550, 1, 1, "Fight Club");
+      const orderedMovies = orderServersForAutoSelection(movieServers, "movie");
+
+      expect(orderedMovies).not.toBe(movieServers);
+      expect(orderedMovies).toEqual(movieServers);
+
+      const tvServers = getEmbedServers("tv", 1399, 1, 1, "Game of Thrones");
+      const orderedTv = orderServersForAutoSelection(tvServers, "tv");
+
+      expect(orderedTv).not.toBe(tvServers);
+      expect(orderedTv).toEqual(tvServers);
+    });
+
+    it("debe clasificar servidores con autoPriority o language explícito correctamente", () => {
+      const customServers: ServerOption[] = [
+        { id: "custom-3", name: "Backup", quality: "1080p", url: "https://example.com/3" },
+        { id: "custom-dub", name: "Dubbed", quality: "1080p", url: "https://example.com/dub", language: "dub" },
+        { id: "custom-sub", name: "Subbed", quality: "1080p", url: "https://example.com/sub", language: "sub" },
+        { id: "custom-p0", name: "Top Priority", quality: "1080p", url: "https://example.com/top", autoPriority: 0 },
+      ];
+
+      const ordered = orderServersForAutoSelection(customServers, "anime");
+      expect(ordered.map((s) => s.id)).toEqual([
+        "custom-p0",
+        "custom-sub",
+        "custom-dub",
+        "custom-3",
+      ]);
+    });
   });
 });
