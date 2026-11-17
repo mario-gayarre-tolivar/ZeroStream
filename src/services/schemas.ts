@@ -56,16 +56,24 @@ export const AniListPageResponseSchema = z.object({
 });
 
 /**
+ * Esquema de validación para identificadores seguros contra path/query injection.
+ */
+const SafeMediaIdSchema = z.union([
+  z.number().int().positive(),
+  z.string().trim().min(1).max(64).regex(/^[a-zA-Z0-9_-]+$/),
+]);
+
+/**
  * Esquema de validación para la petición de verificación de servidores (POST /api/servers/check).
  */
 export const ServerCheckRequestSchema = z.object({
   type: z.enum(["movie", "tv", "anime"]),
-  id: z.union([z.string().min(1), z.number().int().positive()]),
+  id: SafeMediaIdSchema,
   season: z.number().int().min(1).default(1),
   episode: z.number().int().min(1).default(1),
-  title: z.string().optional(),
-  tmdbId: z.union([z.string().min(1), z.number().int().positive()]).optional(),
-  malId: z.union([z.string().min(1), z.number().int().positive()]).optional(),
+  title: z.string().max(200).optional(),
+  tmdbId: SafeMediaIdSchema.optional(),
+  malId: SafeMediaIdSchema.optional(),
   forceRefresh: z.boolean().default(false),
 });
 

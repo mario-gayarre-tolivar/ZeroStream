@@ -28,7 +28,7 @@ describe("<ContinueWatching />", () => {
       season: 1,
       episode: 3,
       episodeTitle: "Capítulo 3",
-      timestamp: Date.now(),
+      updatedAt: Date.now(),
     };
     vi.mocked(historyService.getWatchHistory).mockReturnValue([mockItem]);
 

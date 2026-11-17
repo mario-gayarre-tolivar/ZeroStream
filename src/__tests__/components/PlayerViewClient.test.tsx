@@ -280,4 +280,72 @@ describe("<PlayerViewClient /> — Integración con SafePlayer y Autoselección"
       );
     });
   });
+
+  it("al alternar 'Guardar en mi lista' o 'Ver tráiler' NO debe relanzar /api/servers/check ni resetear el reproductor", async () => {
+    let checkCalls = 0;
+    const fetchMock = vi.fn().mockImplementation(async (url: string) => {
+      if (typeof url === "string" && url.includes("/api/servers/check")) {
+        checkCalls++;
+        return {
+          ok: true,
+          json: async () => ({
+            results: [
+              { serverId: "vidlink", status: "healthy", latencyMs: 110 },
+            ],
+          }),
+        };
+      }
+      return { ok: false, status: 404 };
+    });
+    global.fetch = fetchMock;
+
+    const movieWithTrailer: MediaDetail = {
+      ...mockMovieMedia,
+      trailerYoutubeId: "dQw4w9WgXcQ",
+    };
+
+    render(
+      <PlayerViewClient
+        media={movieWithTrailer}
+        initialSeason={1}
+        initialEpisode={1}
+      />
+    );
+
+    // Esperar a que el reproductor resuelva y cargue el iframe
+    await waitFor(() => {
+      expect(screen.getByTitle("Reproductor para El club de la lucha")).toBeInTheDocument();
+    });
+    expect(checkCalls).toBe(1);
+
+    const initialIframe = screen.getByTitle("Reproductor para El club de la lucha");
+    const initialIframeSrc = initialIframe.getAttribute("src");
+    expect(initialIframeSrc).toBeTruthy();
+
+    // 1. Alternar 'Guardar en mi lista'
+    const favoriteBtn = screen.getByRole("button", { name: /guardar en mi lista/i });
+    fireEvent.click(favoriteBtn);
+
+    // Debe cambiar a 'En mi lista'
+    expect(screen.getByRole("button", { name: /en mi lista/i })).toBeInTheDocument();
+
+    // 2. Alternar 'Ver tráiler'
+    const trailerBtn = screen.getByRole("button", { name: /ver tráiler/i });
+    fireEvent.click(trailerBtn);
+
+    // Debe mostrar 'Ocultar tráiler' y el iframe de YouTube
+    expect(screen.getByRole("button", { name: /ocultar tráiler/i })).toBeInTheDocument();
+    expect(screen.getByText("Tráiler oficial (YouTube)")).toBeInTheDocument();
+
+    // 3. Volver a alternar 'Ocultar tráiler'
+    fireEvent.click(screen.getByRole("button", { name: /ocultar tráiler/i }));
+    expect(screen.getByRole("button", { name: /ver tráiler/i })).toBeInTheDocument();
+
+    // /api/servers/check NO debe haberse llamado nuevamente
+    expect(checkCalls).toBe(1);
+
+    // El iframe del reproductor principal debe seguir existiendo y con el mismo src
+    const currentIframe = screen.getByTitle("Reproductor para El club de la lucha");
+    expect(currentIframe.getAttribute("src")).toBe(initialIframeSrc);
+  });
 });

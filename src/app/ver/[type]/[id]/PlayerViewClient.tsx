@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MediaDetail, MediaType, ServerOption } from "@/types";
@@ -29,15 +29,27 @@ export function PlayerViewClient({
   const [favorite, setFavorite] = useState(() => isFavorite(media.id, media.type));
   const [showTrailer, setShowTrailer] = useState(false);
 
-  // Genera los servidores de streaming basados en el tipo, ID y capítulo actual
-  const servers: ServerOption[] = getEmbedServers(
-    media.type,
-    media.id,
-    currentSeason,
-    currentEpisode,
-    media.title,
-    media.tmdbId,
-    media.malId
+  // Genera los servidores de streaming basados en el tipo, ID y capítulo actual (memoizado para evitar re-chequeos innecesarios)
+  const servers: ServerOption[] = useMemo(
+    () =>
+      getEmbedServers(
+        media.type,
+        media.id,
+        currentSeason,
+        currentEpisode,
+        media.title,
+        media.tmdbId,
+        media.malId
+      ),
+    [
+      media.type,
+      media.id,
+      currentSeason,
+      currentEpisode,
+      media.title,
+      media.tmdbId,
+      media.malId,
+    ]
   );
 
   const activeSeasonData = media.seasons?.find((s) => s.seasonNumber === currentSeason);

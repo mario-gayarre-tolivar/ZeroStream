@@ -81,6 +81,67 @@ describe("Route Handler POST /api/servers/check", () => {
       expect(json.details.season).toBeDefined();
       expect(json.details.episode).toBeDefined();
     });
+
+    it("debe retornar status 400 si id, tmdbId o malId contienen caracteres maliciosos de path/query injection (/ ? & ..)", async () => {
+      const maliciousIds = [
+        "../etc/passwd",
+        "550/exploit",
+        "550?admin=true",
+        "550&param=1",
+        "id with spaces",
+        "bad#hash",
+      ];
+
+      for (const badId of maliciousIds) {
+        const req = new NextRequest("http://localhost:3000/api/servers/check", {
+          method: "POST",
+          body: JSON.stringify({ type: "movie", id: badId }),
+          headers: { "Content-Type": "application/json" },
+        });
+
+        const res = await POST(req);
+        expect(res.status).toBe(400);
+        const json = await res.json();
+        expect(json.error).toBe("Parámetros inválidos");
+      }
+    });
+
+    it("debe retornar status 400 si tmdbId o malId contienen inyecciones de path o query", async () => {
+      const maliciousCases = [
+        { type: "tv", id: 123, tmdbId: "../123" },
+        { type: "anime", id: "naruto", malId: "123?inject=1" },
+        { type: "tv", id: 123, tmdbId: "123/subpath" },
+        { type: "anime", id: "naruto", malId: "123&foo=bar" },
+      ];
+
+      for (const payload of maliciousCases) {
+        const req = new NextRequest("http://localhost:3000/api/servers/check", {
+          method: "POST",
+          body: JSON.stringify(payload),
+          headers: { "Content-Type": "application/json" },
+        });
+
+        const res = await POST(req);
+        expect(res.status).toBe(400);
+        const json = await res.json();
+        expect(json.error).toBe("Parámetros inválidos");
+      }
+    });
+
+    it("debe retornar status 400 si title excede los 200 caracteres", async () => {
+      const longTitle = "a".repeat(201);
+      const req = new NextRequest("http://localhost:3000/api/servers/check", {
+        method: "POST",
+        body: JSON.stringify({ type: "movie", id: 550, title: longTitle }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const res = await POST(req);
+      expect(res.status).toBe(400);
+      const json = await res.json();
+      expect(json.error).toBe("Parámetros inválidos");
+      expect(json.details.title).toBeDefined();
+    });
   });
 
   describe("Anti-SSRF y Generación de Servidores", () => {

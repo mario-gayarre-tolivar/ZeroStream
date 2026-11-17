@@ -375,6 +375,47 @@ describe("probeServerUrl", () => {
     expect(result.reason).toBe("ok");
   });
 
+  it("debe leer incrementalmente de res.body.getReader() y llamar a cancel() tras 16384 bytes", async () => {
+    const cancelSpy = vi.fn().mockResolvedValue(undefined);
+    // Dos chunks de 8192 bytes = 16384 bytes exactos
+    const chunk1 = new Uint8Array(8192).fill(65); // 'A'
+    const chunk2 = new Uint8Array(8192).fill(66); // 'B'
+    const chunk3 = new Uint8Array(8192).fill(67); // 'C'
+
+    let readCount = 0;
+    const mockReader = {
+      read: vi.fn().mockImplementation(async () => {
+        readCount++;
+        if (readCount === 1) return { done: false, value: chunk1 };
+        if (readCount === 2) return { done: false, value: chunk2 };
+        return { done: false, value: chunk3 };
+      }),
+      cancel: cancelSpy,
+    };
+
+    const mockResponse = {
+      status: 200,
+      headers: new Headers({ "content-type": "text/html" }),
+      body: {
+        getReader: () => mockReader,
+      },
+      text: vi.fn(),
+    };
+
+    const mockFetch = vi.fn().mockResolvedValue(mockResponse);
+
+    const result = await probeServerUrl(dummyServer, {
+      fetchFn: mockFetch as any,
+      forceRefresh: true,
+    });
+
+    expect(mockReader.read).toHaveBeenCalledTimes(2);
+    expect(cancelSpy).toHaveBeenCalled();
+    expect(result.status).toBe("healthy");
+    expect(result.reason).toBe("ok");
+    expect(mockResponse.text).not.toHaveBeenCalled();
+  });
+
   it("debe almacenar en caché LRU y no volver a llamar a fetchFn salvo forceRefresh: true", async () => {
     const mockFetch = vi.fn().mockResolvedValue(
       new Response("<html><body>Player</body></html>", { status: 200 })

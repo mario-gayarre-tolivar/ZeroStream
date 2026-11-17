@@ -38,7 +38,7 @@ describe("<HomePage />", () => {
       data: [mockItem(1, "movie")],
       page: 1,
       totalPages: 10,
-    });
+    } as any);
 
     const jsx = await HomePage();
     render(jsx);

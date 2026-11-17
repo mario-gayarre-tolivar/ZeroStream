@@ -20,10 +20,10 @@ vi.mock("@/components/media/LoadMoreCatalog", () => ({
 describe("Páginas de Catálogo", () => {
   it("renderiza el catálogo de películas con su encabezado y filtros", async () => {
     vi.mocked(catalogService.getCachedCatalog).mockResolvedValue({
-      data: [{ id: 1, title: "Peli", type: "movie", overview: "", posterPath: null, backdropPath: null, releaseDate: "", voteAverage: 7, genres: [] }],
+      data: [{ id: 1, title: "Peli", type: "movie", overview: "", posterPath: "", backdropPath: undefined, releaseDate: "", voteAverage: 7, genres: [] }],
       page: 1,
       totalPages: 1,
-    });
+    } as any);
     const jsx = await MoviesPage({ searchParams: Promise.resolve({}) });
     render(jsx);
 
@@ -33,10 +33,10 @@ describe("Páginas de Catálogo", () => {
 
   it("renderiza el catálogo de series con su encabezado y filtros", async () => {
     vi.mocked(catalogService.getCachedCatalog).mockResolvedValue({
-      data: [{ id: 2, title: "Serie", type: "tv", overview: "", posterPath: null, backdropPath: null, releaseDate: "", voteAverage: 7, genres: [] }],
+      data: [{ id: 2, title: "Serie", type: "tv", overview: "", posterPath: "", backdropPath: undefined, releaseDate: "", voteAverage: 7, genres: [] }],
       page: 1,
       totalPages: 1,
-    });
+    } as any);
     const jsx = await SeriesPage({ searchParams: Promise.resolve({}) });
     render(jsx);
 
@@ -46,10 +46,10 @@ describe("Páginas de Catálogo", () => {
 
   it("renderiza el catálogo de anime con su encabezado y filtros", async () => {
     vi.mocked(catalogService.getCachedCatalog).mockResolvedValue({
-      data: [{ id: 3, title: "Anime", type: "anime", overview: "", posterPath: null, backdropPath: null, releaseDate: "", voteAverage: 7, genres: [] }],
+      data: [{ id: 3, title: "Anime", type: "anime", overview: "", posterPath: "", backdropPath: undefined, releaseDate: "", voteAverage: 7, genres: [] }],
       page: 1,
       totalPages: 1,
-    });
+    } as any);
     const jsx = await AnimePage({ searchParams: Promise.resolve({}) });
     render(jsx);
 

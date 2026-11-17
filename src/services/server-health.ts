@@ -54,8 +54,34 @@ export async function probeServerUrl(
 
     let htmlSnippet = "";
     try {
-      const text = await res.text();
-      htmlSnippet = text.slice(0, 16384);
+      if (res.body && typeof res.body.getReader === "function") {
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder("utf-8", { fatal: false });
+        let bytesRead = 0;
+        let snippet = "";
+        try {
+          while (bytesRead < 16384) {
+            const { done, value } = await reader.read();
+            if (done || !value) break;
+            const remaining = 16384 - bytesRead;
+            const chunk =
+              value.byteLength > remaining ? value.subarray(0, remaining) : value;
+            bytesRead += chunk.byteLength;
+            snippet += decoder.decode(chunk, { stream: bytesRead < 16384 });
+            if (bytesRead >= 16384) {
+              await reader.cancel().catch(() => {});
+              break;
+            }
+          }
+          htmlSnippet = snippet;
+        } catch (streamErr) {
+          await reader.cancel().catch(() => {});
+          throw streamErr;
+        }
+      } else {
+        const text = await res.text();
+        htmlSnippet = text.slice(0, 16384);
+      }
     } catch (textErr) {
       if (controller.signal.aborted) {
         throw textErr;

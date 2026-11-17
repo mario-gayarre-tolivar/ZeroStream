@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   ServerOption,
   MediaType,
@@ -71,15 +71,22 @@ export function SafePlayer({
   const currentServer = visibleServers[activeServerIndex] || visibleServers[0] || servers[0];
   const currentServerRef = useRef(currentServer);
   currentServerRef.current = currentServer;
+  const serversRef = useRef(servers);
+  serversRef.current = servers;
+  const serversSignature = useMemo(
+    () => servers.map((s) => `${s.id}:${s.url}`).join("|"),
+    [servers]
+  );
   const healthResultsRef = useRef<ServerCheckResult[]>([]);
   const abortControllerRef = useRef<AbortController | null>(null);
 
   // Pre-chequeo y autoselección de servidores
   const runServerCheck = useCallback(
     async (forceRefresh = false) => {
+      const currentServers = serversRef.current;
       if (!enableAutoSelect) {
         setIsCheckingServers(false);
-        setVisibleServers(servers);
+        setVisibleServers(currentServers);
         setAllFailed(false);
         return;
       }
@@ -127,7 +134,7 @@ export function SafePlayer({
       healthResultsRef.current = healthResults;
 
       const autoResult = resolveAutoSelectedServers({
-        servers,
+        servers: currentServers,
         mediaType,
         healthResults,
         clientFailedIds,
@@ -149,7 +156,6 @@ export function SafePlayer({
     },
     [
       enableAutoSelect,
-      servers,
       mediaType,
       mediaId,
       season,
@@ -157,6 +163,7 @@ export function SafePlayer({
       title,
       tmdbId,
       malId,
+      serversSignature,
     ]
   );
 
@@ -168,7 +175,15 @@ export function SafePlayer({
     return () => {
       abortControllerRef.current?.abort();
     };
-  }, [runServerCheck]);
+  }, [
+    enableAutoSelect,
+    mediaType,
+    mediaId,
+    season,
+    episode,
+    serversSignature,
+    runServerCheck,
+  ]);
 
   const handleTryNextServer = useCallback(() => {
     const active = currentServerRef.current;
@@ -178,7 +193,7 @@ export function SafePlayer({
     const updatedFailedIds = markServerFailed(mediaKey, active.id);
 
     const autoResult = resolveAutoSelectedServers({
-      servers,
+      servers: serversRef.current,
       mediaType,
       healthResults: healthResultsRef.current,
       clientFailedIds: updatedFailedIds,
@@ -199,15 +214,25 @@ export function SafePlayer({
       setIsLoading(true);
       setIframeKey((prev) => prev + 1);
     }
-  }, [mediaType, mediaId, season, episode, servers]);
+  }, [mediaType, mediaId, season, episode, serversSignature]);
 
   const handleShowAllManually = useCallback(() => {
+    const autoResult = resolveAutoSelectedServers({
+      servers: serversRef.current,
+      mediaType,
+      healthResults: healthResultsRef.current,
+      clientFailedIds: [],
+      showAllOverride: true,
+    });
     setShowAllOverride(true);
-    setVisibleServers(servers);
-    setActiveServerIndex(0);
+    setVisibleServers(autoResult.visibleServers);
+    const targetIndex = autoResult.selectedServerId
+      ? autoResult.visibleServers.findIndex((s) => s.id === autoResult.selectedServerId)
+      : 0;
+    setActiveServerIndex(targetIndex >= 0 ? targetIndex : 0);
     setIsLoading(true);
     setIframeKey((prev) => prev + 1);
-  }, [servers]);
+  }, [mediaType, serversSignature]);
 
   const handleRetryVerification = useCallback(() => {
     const mediaKey = buildMediaEpisodeKey(mediaType, mediaId, season, episode);
@@ -369,6 +394,7 @@ export function SafePlayer({
           onTryNextServer={handleTryNextServer}
           canTryNextServer={Boolean(
             enableAutoSelect &&
+              !isCheckingServers &&
               !allFailed &&
               !showAllOverride &&
               visibleServers.length > 0
@@ -384,7 +410,11 @@ export function SafePlayer({
         >
           {/* Loading / Checking Spinner Skeleton */}
           {isCheckingServers ? (
-            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/90">
+            <div
+              role="status"
+              aria-live="polite"
+              className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/90"
+            >
               <div className="h-9 w-9 animate-spin rounded-full border-2 border-accent border-t-transparent" />
               <p className="mt-3 text-sm text-muted">Verificando servidores disponibles...</p>
             </div>

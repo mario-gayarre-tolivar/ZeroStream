@@ -6,20 +6,17 @@ import { Season } from "@/types";
 describe("<EpisodeSelector /> — Selector de Temporadas y Capítulos", () => {
   const mockSeasons: Season[] = [
     {
-      id: 1,
       seasonNumber: 1,
       name: "Temporada 1",
       episodeCount: 2,
       episodes: [
         {
-          id: 101,
           episodeNumber: 1,
           seasonNumber: 1,
           title: "Winter Is Coming",
           overview: "Inicio de la serie",
         },
         {
-          id: 102,
           episodeNumber: 2,
           seasonNumber: 1,
           title: "The Kingsroad",
@@ -28,13 +25,11 @@ describe("<EpisodeSelector /> — Selector de Temporadas y Capítulos", () => {
       ],
     },
     {
-      id: 2,
       seasonNumber: 2,
       name: "Temporada 2",
       episodeCount: 1,
       episodes: [
         {
-          id: 201,
           episodeNumber: 1,
           seasonNumber: 2,
           title: "The North Remembers",
@@ -129,7 +124,6 @@ describe("<EpisodeSelector /> — Selector de Temporadas y Capítulos", () => {
 
     const massiveSeasons: Season[] = [
       {
-        id: 1,
         seasonNumber: 1,
         name: "Temporada 1",
         episodeCount: 1124,
@@ -167,7 +161,6 @@ describe("<EpisodeSelector /> — Selector de Temporadas y Capítulos", () => {
 
     const massiveSeasons: Season[] = [
       {
-        id: 1,
         seasonNumber: 1,
         name: "Temporada 1",
         episodeCount: 1124,

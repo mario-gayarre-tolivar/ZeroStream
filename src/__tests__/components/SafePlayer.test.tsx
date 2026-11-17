@@ -419,6 +419,50 @@ describe("<SafePlayer /> — Reproductor Sandboxed Seguro", () => {
       expect(screen.getByText("Servidor Secundario")).toBeInTheDocument();
     });
 
+    it("el botón 'Probar siguiente' no está visible ni activo mientras isCheckingServers es true", async () => {
+      let resolveFetch!: (val: any) => void;
+      const fetchPromise = new Promise((resolve) => {
+        resolveFetch = resolve;
+      });
+
+      vi.spyOn(global, "fetch").mockReturnValue(fetchPromise as any);
+
+      render(
+        <SafePlayer
+          servers={mockServers}
+          mediaType="movie"
+          mediaId={550}
+          title="Fight Club"
+          posterPath="/poster.jpg"
+          enableAutoSelect={true}
+        />
+      );
+
+      // Mientras la verificación está en curso:
+      expect(screen.getByRole("status")).toHaveTextContent("Verificando servidores disponibles...");
+      expect(screen.queryByRole("button", { name: /probar siguiente/i })).not.toBeInTheDocument();
+
+      // Completamos la respuesta de la verificación
+      await act(async () => {
+        resolveFetch({
+          ok: true,
+          json: async () => ({
+            results: [
+              { serverId: "vidsrc", status: "healthy", latencyMs: 50 },
+              { serverId: "embedsu", status: "healthy", latencyMs: 60 },
+            ],
+            recommendedServerId: "vidsrc",
+            source: "live",
+          }),
+        });
+      });
+
+      // Ahora que isCheckingServers terminó, el botón 'Probar siguiente' debe aparecer
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /probar siguiente/i })).toBeInTheDocument();
+      });
+    });
+
     it("si el iframe no dispara onLoad tras iframeTimeoutMs, cambia automáticamente al siguiente servidor disponible", async () => {
       vi.useFakeTimers();
 
