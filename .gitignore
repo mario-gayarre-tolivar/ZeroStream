@@ -16,7 +16,6 @@
 .env
 .env*.local
 
-
 # Logs de debug y ejecución
 npm-debug.log*
 yarn-debug.log*
@@ -35,12 +34,18 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Herramientas de agentes e ingeniería local
+# Herramientas de agentes, ingeniería local y metadatos
 .compound-engineering/
 .agents/
 .gemini/
+.superpowers/
 skills-lock.json
-
 graphify-out/
 
+# Documentación interna, planes de desarrollo y checklists privados
 docs/
+AGENTS.md
+GEMINI.md
+Historial.md
+CHECKLIST_PRUEBAS.md
+GUIA_GRAFO.md
